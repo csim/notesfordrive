@@ -7,6 +7,8 @@
 
  - automatically detect/sync changes from drive while the app is running
 
+ - on first trash file show popover explaining they can undo this action from the Trash folder in Google Drive
+
  THEN
  - open existing doc (save opened doc id's to chrome.storage) + right click menu for choosing this "Open from Drive"
 
@@ -15,14 +17,14 @@
  - if not opened/imported or renamed explicitly (store details in chrome storage)
  then use first 5 words or 20 characters as doc title (even if it changes)
 
-  - associate multiple open instances with the gmail tab/account authenticated in
-
  THEN
  - add button to gmail
 
  - show small image of user last edited by if it was not you and you have not yet seen the changes
 
  - show photos (with name in popover) of users the file is shared with
+
+ - associate multiple open instances with the gmail tab/account authenticated in
 
  */
 
@@ -233,20 +235,20 @@ function setActiveDoc(doc)
 
     // reconfigure the buttons
     $('#trash-button').tooltip('destroy');
-    $('#open-drive-button').tooltip('destroy');
+    $('#edit-in-drive-button').tooltip('destroy');
 
     $('#trash-button').unbind().click( function()
     {
         trashDocument(doc);
     });
 
-    $("#open-drive-button").unbind().click( function()
+    $("#edit-in-drive-button-button").unbind().click( function()
     {
         chrome.tabs.create({ url: item.alternateLink });
     });
 
     $('#trash-button').tooltip();
-    $('#open-drive-button').tooltip();
+    $('#edit-in-drive-button').tooltip();
 
 
     updateDisplay();
@@ -418,6 +420,7 @@ function updateDocumentTitleFromText(doc, text)
     var $item_element = $( doc.notesListElementId );
     $item_element.text = doc.title;
 }
+
 
 function extractTitle(text)
 {
