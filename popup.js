@@ -1,15 +1,9 @@
 
 /* TODO
 
- - generate note title
-
- - instantly create new note then sync/insert to drive only on first save
-
  - send new notes to top of list
 
- - check for expired access tokens
-
- - show photos (with name in popover) of users the file is shared with
+ - check for expired access tokens / change oauth2 provider
 
  - automatically detect/sync changes from drive while the app is running
 
@@ -21,11 +15,14 @@
  - if not opened/imported or renamed explicitly (store details in chrome storage)
  then use first 5 words or 20 characters as doc title (even if it changes)
 
+  - associate multiple open instances with the gmail tab/account authenticated in
 
  THEN
  - add button to gmail
 
  - show small image of user last edited by if it was not you and you have not yet seen the changes
+
+ - show photos (with name in popover) of users the file is shared with
 
  */
 
@@ -148,26 +145,6 @@ function authenticationFailed()
     updateDisplay();
 }
 
-
-function createDocument(title, content)
-{
-    title = title || 'New Note';
-    content = content || '';
-
-    background.gdrive.insertAsHTML(background.cache.folder.id, title, content, function(item_response)
-    {
-        var doc = {
-            item: item_response,
-            doc.title = title;
-            contentHTML: content
-        };
-
-        background.cache.documents.push(doc);
-
-        addDocument(doc);
-        setActiveDoc(doc);
-    });
-}
 
 function displayDocs()
 {
@@ -307,6 +284,25 @@ function trashDocument(doc)
 }
 
 
+function createDocument(title, content)
+{
+    title = title || 'New Note';
+    content = content || '';
+
+    var doc = {
+        item: item_response,
+        title: doc.title,
+        contentHTML: content,
+        requiresInsert: true
+    };
+
+    background.cache.documents.push(doc);
+
+    addDocument(doc);
+    setActiveDoc(doc);
+}
+
+
 function saveDocument(doc)
 {
     if(!doc || !doc.dirty || doc.saving)
@@ -317,7 +313,8 @@ function saveDocument(doc)
 
     $('#active-note-status').text('Saving..');
 
-    background.gdrive.overwriteAsHTML(doc.item.id, doc.title, doc.contentHTML, function(item_response)
+
+    completed: function(item_response)
     {
         doc.item = item_response;
         doc.saving = false;
@@ -327,21 +324,38 @@ function saveDocument(doc)
         // automatically save pending changes once current save has completed
         if(doc.dirty)
             saveDocument(doc);
-    });
+    }
+
+
+    if(doc.requiresInsert)
+    {
+        doc.requiresInsert = false;
+        background.gdrive.insertAsHTML(background.cache.folder.id, doc.title, doc.contentHTML, completed);
+    }
+    else
+    {
+        background.gdrive.overwriteAsHTML(doc.item.id, doc.title, doc.contentHTML, completed);
+    }
 }
 
 
+function hideAll()
+{
+    $('#auth-section').hide();
+    $('#message-section').hide();
+    $('#loading-section').hide();
+    $('#documents-section').hide();
+
+    $('#notes-list-buttons').hide();
+    $('#active-note-footer').hide();
+}
+
 function updateDisplay()
 {
+    hideAll();
+
     if(!navigator.onLine)
     {
-        $('#loading-section').hide();
-        $('#message-section').hide();
-        $('#documents-section').hide();
-
-        $('#notes-list-buttons').hide();
-        $('#active-note-footer').hide();
-
         $('#message-section').show();
         $("#message-content").text("You don't appear to have an internet connection.");
         $('#message-content').center();
@@ -351,13 +365,6 @@ function updateDisplay()
 
     if(!background.gdrive.accessToken)
     {
-        $('#loading-section').hide();
-        $('#message-section').hide();
-        $('#documents-section').hide();
-
-        $('#notes-list-buttons').hide();
-        $('#active-note-footer').hide();
-
         $('#auth-section').show();
         $('#auth-content').center();
 
@@ -367,13 +374,6 @@ function updateDisplay()
     {
         if(background.state == background.StateEnum.CACHING && background.cache.lastUpdated == null)
         {
-            $('#loading-section').hide();
-            $('#message-section').hide();
-            $('#documents-section').hide();
-
-            $('#notes-list-buttons').hide();
-            $('#active-note-footer').hide();
-
             $('#loading-section').show();
             $('#loading-content').center();
         }
@@ -381,27 +381,18 @@ function updateDisplay()
         {
             if(background.cache.documents.length > 0)
             {
-                $('#auth-section').hide();
-                $('#loading-section').hide();
-                $('#message-section').hide();
+                $('#documents-section').show();
 
                 $('#notes-list-buttons').show();
                 $('#active-note-footer').show();
-
-                $('#documents-section').show();
             }
             else
             {
-                $('#auth-section').hide();
-                $('#loading-section').hide();
-                $('#documents-section').hide();
-
-                $('#notes-list-buttons').show();
-                $('#active-note-footer').hide();
-
                 $('#message-section').show();
                 $('#message-content').text("You don't have any notes. Create one using the pencil icon below.");
                 $('#message-content').center();
+
+                $('#notes-list-buttons').show();
             }
         }
     }
@@ -412,15 +403,6 @@ function setLastActiveDocument(doc)
 {
     background.lastActiveDocId = doc.item.id;
     chrome.storage.sync.set( {'last-active-doc-id': doc.item.id} );
-}
-
-
-$.fn.center = function ()
-{
-    this.css("position","absolute");
-    this.css("top", ( this.parent().height() - this.height() ) / 2  + "px");
-    this.css("left", ( this.parent().width() - this.width() ) / 2 + "px");
-    return this;
 }
 
 
