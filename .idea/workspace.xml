@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f6542965-b92e-44f4-a409-eeae7a80e20f" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/background.js" afterPath="$PROJECT_DIR$/background.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/gdrive.js" afterPath="$PROJECT_DIR$/gdrive.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/popup.css" afterPath="$PROJECT_DIR$/popup.css" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/popup.js" afterPath="$PROJECT_DIR$/popup.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/utils.js" afterPath="$PROJECT_DIR$/utils.js" />
     </list>
     <ignored path="Notes for Drive.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -42,8 +38,8 @@
       <file leaf-file-name="popup.js" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/popup.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.094936706" vertical-offset="0" max-vertical-offset="8385">
-              <caret line="4" column="0" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.3591772" vertical-offset="6793" max-vertical-offset="8415">
+              <caret line="468" column="0" selection-start-line="468" selection-start-column="0" selection-end-line="468" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -286,8 +282,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/popup.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.094936706" vertical-offset="0" max-vertical-offset="8385">
-          <caret line="4" column="0" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.3591772" vertical-offset="6793" max-vertical-offset="8415">
+          <caret line="468" column="0" selection-start-line="468" selection-start-column="0" selection-end-line="468" selection-end-column="0" />
           <folding />
         </state>
       </provider>

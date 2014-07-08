@@ -462,7 +462,9 @@ function extractTitle(html)
     if(!html || html.length == 0)
         return null;
 
-    var firstParagraph = contentOfFirstTag('p', html);
+    console.log('extractTitle: ' + html);
+
+    var firstParagraph = contentOfFirstTag('p', html) || html;
     var text = stripTags(firstParagraph);
 
     text = text.replace(/&lt;/g, '');
