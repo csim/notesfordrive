@@ -259,12 +259,13 @@ GDrive.prototype.about = function(success_callback, error_callback)
     this.jsonRequest('GET', url, success_callback, error_callback);
 }
 
-GDrive.prototype.overwriteAsHTML = function(fileId, utf8content, success_callback, error_callback)
+GDrive.prototype.overwriteAsHTML = function(fileId, title, utf8content, success_callback, error_callback)
 {
     var details = {
         insert: false,
         mimeType: 'text/html',
         fileId: fileId
+        title: title
     };
 
     this.uploadUTF8(details, utf8content, success_callback, error_callback);

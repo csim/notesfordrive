@@ -21,14 +21,22 @@ var cache =
 
 document.addEventListener("DOMContentLoaded", function()
 {
+    loadState();
+
     gdrive = new GDrive();
     gdrive.auth({interactive: false}, onAuthenticated);
-
-    chrome.storage.sync.get('last-active-doc-id', function(result)
-    {
-        lastActiveDocId = result['last-active-doc-id'];
-    });
 });
+
+
+function loadState()
+{
+  LAST_ACTIVE_DOC_ID = 'last-active-doc-id';
+
+  chrome.storage.sync.get(LAST_ACTIVE_DOC_ID, function(result)
+  {
+      lastActiveDocId = result[ LAST_ACTIVE_DOC_ID ];
+  });
+}
 
 
 function onAuthenticated()
@@ -43,7 +51,7 @@ function updateCache(completed)
         return;
 
     state = StateEnum.CACHING;
-    chrome.runtime.sendMessage({'caching-state': state});
+    chrome.runtime.sendMessage({'cachingState': state});
 
     var completed_wrapper = function()
     {
@@ -132,6 +140,7 @@ function cacheDocs(completed)
                 {
                     var doc = cachingDocuments[index];
                     doc.item = item
+                    doc.title = child.title;
 
                     gdrive.download(item.exportLinks['text/html'], function(responseData)
                     {

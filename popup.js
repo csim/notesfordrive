@@ -74,8 +74,8 @@ function createSummernote()
         {
             height: 325,
 
-            minHeight: 325,             // set minimum height of editor
-            maxHeight: 325,             // set maximum height of editor
+            minHeight: 325,  // set minimum height of editor
+            maxHeight: 325,  // set maximum height of editor
 
             focus: false,
 
@@ -96,13 +96,16 @@ function createSummernote()
 function onDocumentChange(contents, $editable)
 {
     var doc = $('.summernote').data('editing-doc');
-    var html = $('.summernote').code();
 
     if(doc)
     {
+        var html = $('.summernote').code();
+        var text = $('.summernote').text();
+
         doc.dirty = true;
         doc.contentHTML = html;
 
+        updateDocumentTitleFromText(doc, text);
         saveDocument(doc);
     }
 }
@@ -155,6 +158,7 @@ function createDocument(title, content)
     {
         var doc = {
             item: item_response,
+            doc.title = title;
             contentHTML: content
         };
 
@@ -193,12 +197,14 @@ function addDocument(doc)
     e.attr('id', 'nli-'+item.id);
     e.data('doc', doc);
 
+    doc.notesListElementId = e.attr('id');
+
     e.click(function()
     {
         setActiveDoc(doc);
     });
 
-    e.text(item.title);
+    e.text(doc.title);
 
     $("#notes-list").append( e );
 }
@@ -224,7 +230,7 @@ function setActiveDoc(doc)
     var item = doc.item;
     var content = doc.contentHTML;
 
-    var $item_element = $('#nli-'+item.id);
+    var $item_element = $( doc.notesListElementId );
 
     $('.summernote').code(content);
     $('.summernote').data('editing-doc', doc);
@@ -238,9 +244,6 @@ function setActiveDoc(doc)
     $item_element.addClass('active');
 
     var isFirst = background.cache.documents[0] == doc;
-
-    //var $first = $('#notes-list').find('.notes-list-item:first');
-    //var arrowIcon = $first.attr('id') == $item_element.attr('id') ? "notes-arrow-light-grey.png" : "notes-arrow.png";
     var arrowIcon = isFirst ? "notes-arrow-light-grey.png" : "notes-arrow.png";
 
 
@@ -292,6 +295,7 @@ function setActiveDoc(doc)
     updateDisplay();
 }
 
+
 function saveDocument(doc)
 {
     if(!doc || !doc.dirty || doc.saving)
@@ -302,7 +306,7 @@ function saveDocument(doc)
 
     $('#active-note-status').text('Saving..');
 
-    background.gdrive.overwriteAsHTML(doc.item.id, doc.contentHTML, function(item_response)
+    background.gdrive.overwriteAsHTML(doc.item.id, doc.title, doc.contentHTML, function(item_response)
     {
         doc.item = item_response;
         doc.saving = false;
@@ -324,6 +328,9 @@ function updateDisplay()
         $('#message-section').hide();
         $('#documents-section').hide();
 
+        $('#notes-list-buttons').hide();
+        $('#active-note-footer').hide();
+
         $('#message-section').show();
         $("#message-content").text("You don't appear to have an internet connection.");
         $('#message-content').center();
@@ -337,6 +344,9 @@ function updateDisplay()
         $('#message-section').hide();
         $('#documents-section').hide();
 
+        $('#notes-list-buttons').hide();
+        $('#active-note-footer').hide();
+
         $('#auth-section').show();
         $('#auth-content').center();
 
@@ -349,6 +359,9 @@ function updateDisplay()
             $('#loading-section').hide();
             $('#message-section').hide();
             $('#documents-section').hide();
+
+            $('#notes-list-buttons').hide();
+            $('#active-note-footer').hide();
 
             $('#loading-section').show();
             $('#loading-content').center();
@@ -372,13 +385,8 @@ function updateDisplay()
                 $('#loading-section').hide();
                 $('#documents-section').hide();
 
-                $('#notes-list-buttons').hide();
+                $('#notes-list-buttons').show();
                 $('#active-note-footer').hide();
-
-                var createButton = $("<input id='create-first-button' type='button' class='btn' value='Create your first note' />").click(function()
-                {
-                    createDocument();
-                });
 
                 $('#message-section').show();
                 $('#message-content').text("You don't have any notes. Create one using the pencil icon below.");
@@ -404,6 +412,19 @@ $.fn.center = function ()
     return this;
 }
 
+
+function updateDocumentTitleFromText(doc, text)
+{
+    var title = extractTitle(text);
+
+    if(title.length == 0)
+        title = 'Untitled';
+
+    doc.title = title;
+
+    var $item_element = $( doc.notesListElementId );
+    $item_element.text = doc.title;
+}
 
 function extractTitle(text)
 {
