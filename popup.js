@@ -1,16 +1,23 @@
 
 /* TODO
 
+ - check for expired access tokens / change oauth2 provider
+
  - send new notes to top of list
 
- - check for expired access tokens / change oauth2 provider
+ - put drive and trash items in a popup menu (to streamline UI)
 
  - automatically detect/sync changes from drive while the app is running
 
- - on first trash file show popover explaining they can undo this action from the Trash folder in Google Drive
+ - right click menu for note list items for open in drive and trash options
 
  THEN
+ - drag and drop re-ordering of list items (save ordering to storage.sync)
+
+ - on first trash file show popover explaining they can undo this action from the Trash folder in Google Drive
+
  - open existing doc (save opened doc id's to chrome.storage) + right click menu for choosing this "Open from Drive"
+   - could store opened doc id's as properties of the master folder so they are accessible in other browser instances
 
  - rename note button, close note button (only for opened notes)
 
@@ -18,7 +25,7 @@
  then use first 5 words or 20 characters as doc title (even if it changes)
 
  - simple mode (as an option): only show saving status when saving/saved then disappear after 2 seconds, no settings icon, no
- formatting controls (use air mode)
+ formatting controls (use air mode) -> "Standard UI or Streamlined UI"
 
  THEN
  - add button to gmail
@@ -186,7 +193,7 @@ function addDocument(doc)
     e.attr('id', 'nli-' + id);
     e.data('doc', doc);
 
-    doc.notesListElementId = e.attr('id');
+    doc.$notesListElement = e;
 
     e.click(function()
     {
@@ -217,23 +224,23 @@ function setActiveDoc(doc)
     setLastActiveDocument(doc);
 
 
-    var $item_element = $( '#' + doc.notesListElementId );
-
     $('.summernote').code(doc.contentHTML);
     $('.summernote').data('editing-doc', doc);
 
     if(doc.contentHTML.length == 0)
         $('.summernote').summernote({focus:true});
 
-    if(doc.item)
-    {
+
+    $('#active-note-status').empty();
+    if(doc.item) {
         $('#active-note-status').text('Last change was ' + moment(doc.item.modifiedDate).fromNow());
     }
-    else
-        $('#active-note-status').empty();
+
+
+    var $listItem = doc.$notesListElement;
 
     $('.notes-list-item').removeClass('active');
-    $item_element.addClass('active');
+    $listItem.addClass('active');
 
 
     // set the correct arrow overlay
@@ -241,7 +248,7 @@ function setActiveDoc(doc)
     var arrowIcon = isFirst ? "notes-arrow-light-grey.png" : "notes-arrow.png";
 
     $('.notes-list-item .arrow').remove();
-    $item_element.prepend( $("<img class='arrow' src='img/" + arrowIcon + "'/>") );
+    $listItem.prepend( $("<img class='arrow' src='img/" + arrowIcon + "'/>") );
 
 
     // reconfigure the buttons
@@ -269,11 +276,10 @@ function setActiveDoc(doc)
 
 function trashDocument(doc)
 {
-    var $item_element = $( '#' + doc.notesListElementId );
-
     if(doc.item)
         background.gdrive.trashFile(doc.item.id);
-    $item_element.remove();
+
+    doc.$notesListElement.remove();
 
     var documents = background.cache.documents;
 
@@ -328,7 +334,6 @@ function saveDocument(doc)
 
     $('#active-note-status').text('Saving..');
 
-
     var completed = function(item_response)
     {
         doc.item = item_response;
@@ -339,8 +344,7 @@ function saveDocument(doc)
         // automatically save pending changes once current save has completed
         if(doc.dirty)
             saveDocument(doc);
-    }
-
+    };
 
     if(doc.requiresInsert)
     {
@@ -432,9 +436,7 @@ function updateDocumentTitle(doc)
         title = 'Untitled';
 
     doc.title = title;
-
-    var $item_element = $( '#' + doc.notesListElementId );
-    $item_element.text(doc.title);
+    doc.$notesListElement.text(doc.title);
 }
 
 
@@ -469,14 +471,10 @@ function extractTitle(html)
 
     text = text.replace(/&lt;/g, '');
     text = text.replace(/&gt;/g, '');
-    text = text.replace(/&nbsp;/g, '');
+    text = text.replace(/&nbsp;/g, ' ');
 
-    MAX_TITLE_WORDS = 5;
-
-    var firstLine = text.split('\n')[0];
-    var title = firstLine.split(' ').slice(0,MAX_TITLE_WORDS).join(' ');
-
-    return title;
+    MAX_TITLE_WORDS = 10;
+    return text.split(' ').slice(0, MAX_TITLE_WORDS).join(' ');
 }
 
 function contentOfFirstTag(tag, text, startFromIndex)
