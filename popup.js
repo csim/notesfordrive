@@ -221,11 +221,13 @@ function setActiveDoc(doc)
         return;
     }
 
+
+    // don't do anything if we're already the active doc
     if($('.summernote').data('editing-doc') == doc)
         return;
 
-
     setLastActiveDocument(doc);
+
 
     var item = doc.item;
     var content = doc.contentHTML;
@@ -243,44 +245,22 @@ function setActiveDoc(doc)
     $('.notes-list-item').removeClass('active');
     $item_element.addClass('active');
 
+
+    // set the correct arrow overlay
     var isFirst = background.cache.documents[0] == doc;
     var arrowIcon = isFirst ? "notes-arrow-light-grey.png" : "notes-arrow.png";
-
 
     $('.notes-list-item .arrow').remove();
     $item_element.prepend( $("<img class='arrow' src='img/" + arrowIcon + "'/>") );
 
 
+    // reconfigure the buttons
     $('#trash-button').tooltip('destroy');
     $('#open-drive-button').tooltip('destroy');
 
-
     $('#trash-button').unbind().click( function()
     {
-        background.gdrive.trashFile(item.id);
-        $item_element.remove();
-
-        var documents = background.cache.documents;
-
-        // remove the document from the cache
-        var index = documents.indexOf(doc);
-        if(index > -1) {
-            documents.splice(index, 1);
-        }
-
-        // display the next available document
-        var nextDoc = null;
-
-        if(documents.length > 0)
-        {
-            if(index > 0) {
-                nextDoc = documents[index - 1];
-            }
-            else
-                nextDoc = documents[index];
-        }
-
-        setActiveDoc(nextDoc);
+        trashDocument(doc);
     });
 
     $("#open-drive-button").unbind().click( function()
@@ -288,11 +268,42 @@ function setActiveDoc(doc)
         chrome.tabs.create({ url: item.alternateLink });
     });
 
-
     $('#trash-button').tooltip();
     $('#open-drive-button').tooltip();
 
+
     updateDisplay();
+}
+
+
+function trashDocument(doc)
+{
+    var $item_element = $( doc.notesListElementId );
+
+    background.gdrive.trashFile(doc.item.id);
+    $item_element.remove();
+
+    var documents = background.cache.documents;
+
+    // remove the document from the cache
+    var index = documents.indexOf(doc);
+    if(index > -1) {
+        documents.splice(index, 1);
+    }
+
+    // display the next available document
+    var nextDoc = null;
+
+    if(documents.length > 0)
+    {
+        if(index > 0) {
+            nextDoc = documents[index - 1];
+        }
+        else
+            nextDoc = documents[index];
+    }
+
+    setActiveDoc(nextDoc);
 }
 
 
