@@ -1,0 +1,343 @@
+body
+{
+    background-color: #fff;
+    padding: 0px;
+    margin: 0px;
+    height: 450px;
+    width: 750px;
+    font-family: Helvetica, Ubuntu, Arial, sans-serif;
+}
+
+h1
+{
+    font-size: 2em;
+}
+
+#header
+{
+    position:absolute;
+    width:100%;
+    height:44px;
+    top:0;
+    background-color: #ff4d6f;
+    border-bottom: 2px solid #df4464;
+}
+
+#footer
+{
+    position:absolute;
+    width:100%;
+    height:40px;
+    bottom:0;
+    background-color: #f4f4f4;
+    border-top: 1px solid #d6d6d6;
+}
+
+#content
+{
+    position:absolute;
+    width:100%;
+    top:44px;
+    bottom:40px;
+}
+
+
+#authorize-button
+{
+    color: white;
+    font-family: 'Open Sans', sans-serif;
+    outline: none;
+    box-shadow: none;
+    background-color: #4b74ff;
+    transition: all 0.1s linear;
+}
+#authorize-button:hover
+{
+    background-color: #3e5fe5;
+}
+
+
+#create-first-button
+{
+    color: white;
+    font-family: 'Open Sans', sans-serif;
+    outline: none;
+    box-shadow: none;
+    background-color: #39e014;
+    transition: all 0.1s linear;
+}
+#create-first-button:hover
+{
+    background-color: #30c112;
+}
+
+
+.notes-list-item
+{
+    cursor: pointer;
+    padding: 10px 8px 10px 8px;
+    color: #494949;
+    position: relative;
+    border-right: 1px solid #d6d6d6;
+}
+
+.notes-list-item:hover
+{
+    background-color: rgba(255, 255, 178, 0.35);
+}
+
+.notes-list-item.active
+{
+    font-weight: bold;
+    background-color: rgb(255, 255, 178);
+    color: #595959;
+}
+
+.notes-list-item .arrow
+{
+    width: 10px;
+    height: 30px;
+    position: absolute;
+    z-index: 10;
+    top: 5px;
+    right: -1px;
+    border-right: none;
+    overflow: hidden;
+}
+
+#notes-list-space
+{
+    border-right: 1px solid #d6d6d6;
+    height: 100%;
+}
+
+
+#auth-section
+{
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+#message-section
+{
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+#loading-section
+{
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+#documents-section
+{
+    width: 100%;
+    height: 100%;
+    display: none;
+}
+
+
+#auth-content
+{
+    text-align: center;
+}
+
+#loading-content
+{
+    text-align: center;
+}
+
+#message-content
+{
+    text-align: center;
+    font-size: 1.2em;
+    font-family: 'Open Sans', sans-serif;
+    color: #696969;
+}
+
+
+.title-text
+{
+    font-size: 1.4em;
+    color: #5d5d5d;
+    margin-bottom: 5px;
+}
+
+.subtitle-text
+{
+    font-size: 1.2em;
+    color: #5d5d5d;
+}
+
+
+#notes-list-container
+{
+    width: 30%;
+    height: 100%;
+    float: left;
+    overflow: scroll;
+}
+
+#note-content-container
+{
+    width: 70%;
+    height: 100%;
+    float: right;
+    background-color: white;
+}
+
+#notes-list-buttons
+{
+    width: 30%;
+    float: left;
+    margin-top: 3px;
+    display: none;
+}
+
+#active-note-footer
+{
+    width: 70%;
+    float: right;
+    display: none;
+}
+
+#active-note-actions
+{
+    float: right
+}
+
+#active-note-status
+{
+    float: left;
+    width: 50%;
+    margin-left: 8px;
+    margin-top: 9px;
+    color: rgb(124, 124, 124);
+    opacity: 0.6;
+    font-size: 1em;
+    transition: opacity 0.1s linear;
+}
+#active-note-status:hover
+{
+    opacity: 1;
+}
+
+#settings-button
+{
+    padding: 5px;
+    color: rgba(225, 70, 105, 0.47);
+    font-size: 1.6em;
+    transition: color 0.1s linear;
+    outline: none;
+    box-shadow: none;
+}
+
+#settings-button:hover
+{
+    color: #fff;
+}
+
+#app-title
+{
+    color: white;
+    font-size: 1.2em;
+    position: absolute; bottom: 6px; left: 8px;
+}
+
+#app-actions
+{
+    position: absolute; bottom: -2px; right: 3px;
+}
+
+#open-button
+{
+    padding-left: 2px;
+    padding-right: 8px;
+}
+
+#new-button
+{
+    width: 40px;
+    height: 40px;
+    position: absolute;
+    left: 8px;
+    bottom: 10px;
+    padding-top: 10px;
+    padding-left: 12px;
+    color: #ffffff;
+    background-color: #ff4d6f;
+    border-radius: 20px;
+    outline: none;
+    box-shadow: none;
+    transition: all 0.1s linear;
+}
+#new-button:hover
+{
+    background-color: #c8415f;
+}
+
+
+#trash-button, #open-button
+{
+    color: #9d9d9d;
+    font-size: 1.1em;
+    transition: color 0.1s linear;
+    outline: none;
+    box-shadow: none;
+}
+
+#trash-button:hover, #open-button:hover
+{
+    color: #5d5d5d;
+}
+
+
+#open-drive-button
+{
+    outline: none;
+    box-shadow: none;
+    margin-top: 1px;
+    padding-left: 6px;
+    padding-right: 2px;
+}
+
+#trash-button
+{
+    margin-top: 2px;
+    padding-left: 2px;
+    padding-right: 10px;
+}
+
+
+.drive-icon
+{
+    content: url('img/google-drive-20-grayscale.png');
+    opacity: 0.4;
+    margin-top: 2px;
+}
+.drive-icon:hover
+{
+   content: url('img/google-drive-20-color.png');
+   opacity: 1;
+}
+
+
+/* Bootstrap Overrides */
+
+.tooltip-inner
+{
+    max-width:none;
+    white-space:pre;
+}
+
+
+/* Summernote Overrides */
+
+.note-editor .note-toolbar
+{
+    border-bottom: 1px solid #d6d6d6;
+}
