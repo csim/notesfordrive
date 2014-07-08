@@ -128,6 +128,7 @@ function cacheDocs(completed)
                 var doc =
                 {
                     item: null,
+                    contentHTML: '',
                     hasDownloaded: false
                 };
 
@@ -140,7 +141,7 @@ function cacheDocs(completed)
                 {
                     var doc = cachingDocuments[index];
                     doc.item = item
-                    doc.title = child.title;
+                    doc.title = item.title;
 
                     gdrive.download(item.exportLinks['text/html'], function(responseData)
                     {

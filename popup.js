@@ -17,6 +17,9 @@
  - if not opened/imported or renamed explicitly (store details in chrome storage)
  then use first 5 words or 20 characters as doc title (even if it changes)
 
+ - simple mode (as an option): only show saving status when saving/saved then disappear after 2 seconds, no settings icon, no
+ formatting controls (use air mode)
+
  THEN
  - add button to gmail
 
@@ -25,6 +28,11 @@
  - show photos (with name in popover) of users the file is shared with
 
  - associate multiple open instances with the gmail tab/account authenticated in
+
+ - resizable window
+
+ MISC
+ - quill icon
 
  */
 
@@ -92,6 +100,7 @@ function createSummernote()
     $('.note-resizebar').css('display', 'none');
 }
 
+
 function onDocumentChange(contents, $editable)
 {
     var doc = $('.summernote').data('editing-doc');
@@ -99,12 +108,11 @@ function onDocumentChange(contents, $editable)
     if(doc)
     {
         var html = $('.summernote').code();
-        var text = $('.summernote').text();
 
         doc.dirty = true;
         doc.contentHTML = html;
 
-        updateDocumentTitleFromText(doc, text);
+        updateDocumentTitle(doc);
         saveDocument(doc);
     }
 }
@@ -160,7 +168,7 @@ function displayDocs()
 
             var setActive = background.lastActiveDocId === doc.item.id || (background.lastActiveDocId == null && index == 0);
 
-            if (setActive)
+            if(setActive)
                 setActiveDoc(doc);
         });
     }
@@ -168,12 +176,14 @@ function displayDocs()
     updateDisplay();
 }
 
+
 function addDocument(doc)
 {
-    var item = doc.item;
+    // we wont have an item if we've got a doc from createDocument and it hasn't yet been saved
+    var id = doc.item ? doc.item.id : guid();
 
     var e = $("<div class='notes-list-item'/>");
-    e.attr('id', 'nli-'+item.id);
+    e.attr('id', 'nli-' + id);
     e.data('doc', doc);
 
     doc.notesListElementId = e.attr('id');
@@ -200,7 +210,6 @@ function setActiveDoc(doc)
         return;
     }
 
-
     // don't do anything if we're already the active doc
     if($('.summernote').data('editing-doc') == doc)
         return;
@@ -208,18 +217,20 @@ function setActiveDoc(doc)
     setLastActiveDocument(doc);
 
 
-    var item = doc.item;
-    var content = doc.contentHTML;
+    var $item_element = $( '#' + doc.notesListElementId );
 
-    var $item_element = $( doc.notesListElementId );
-
-    $('.summernote').code(content);
+    $('.summernote').code(doc.contentHTML);
     $('.summernote').data('editing-doc', doc);
 
-    if(content.length == 0)
+    if(doc.contentHTML.length == 0)
         $('.summernote').summernote({focus:true});
 
-    $('#active-note-status').text('Last change was ' + moment(item.modifiedDate).fromNow());
+    if(doc.item)
+    {
+        $('#active-note-status').text('Last change was ' + moment(doc.item.modifiedDate).fromNow());
+    }
+    else
+        $('#active-note-status').empty();
 
     $('.notes-list-item').removeClass('active');
     $item_element.addClass('active');
@@ -242,9 +253,10 @@ function setActiveDoc(doc)
         trashDocument(doc);
     });
 
-    $("#edit-in-drive-button-button").unbind().click( function()
+    $("#edit-in-drive-button").unbind().click( function()
     {
-        chrome.tabs.create({ url: item.alternateLink });
+        if(doc.item)
+            chrome.tabs.create({ url: doc.item.alternateLink });
     });
 
     $('#trash-button').tooltip();
@@ -257,9 +269,10 @@ function setActiveDoc(doc)
 
 function trashDocument(doc)
 {
-    var $item_element = $( doc.notesListElementId );
+    var $item_element = $( '#' + doc.notesListElementId );
 
-    background.gdrive.trashFile(doc.item.id);
+    if(doc.item)
+        background.gdrive.trashFile(doc.item.id);
     $item_element.remove();
 
     var documents = background.cache.documents;
@@ -292,8 +305,8 @@ function createDocument(title, content)
     content = content || '';
 
     var doc = {
-        item: item_response,
-        title: doc.title,
+        item: null,
+        title: title,
         contentHTML: content,
         requiresInsert: true
     };
@@ -316,7 +329,7 @@ function saveDocument(doc)
     $('#active-note-status').text('Saving..');
 
 
-    completed: function(item_response)
+    var completed = function(item_response)
     {
         doc.item = item_response;
         doc.saving = false;
@@ -403,31 +416,138 @@ function updateDisplay()
 
 function setLastActiveDocument(doc)
 {
-    background.lastActiveDocId = doc.item.id;
-    chrome.storage.sync.set( {'last-active-doc-id': doc.item.id} );
+    if(doc.item)
+    {
+        background.lastActiveDocId = doc.item.id;
+        chrome.storage.sync.set({'last-active-doc-id': doc.item.id});
+    }
 }
 
 
-function updateDocumentTitleFromText(doc, text)
+function updateDocumentTitle(doc)
 {
-    var title = extractTitle(text);
+    var title = extractTitle(doc.contentHTML);
 
-    if(title.length == 0)
+    if(!title || title.length == 0)
         title = 'Untitled';
 
     doc.title = title;
 
-    var $item_element = $( doc.notesListElementId );
-    $item_element.text = doc.title;
+    var $item_element = $( '#' + doc.notesListElementId );
+    $item_element.text(doc.title);
 }
 
 
-function extractTitle(text)
+/* Example of HTML returned by Summernote
+<title>New Note</title>
+<meta content="text/html; charset=UTF-8" http-equiv="content-type">
+    <style type="text/css">ol{margin:0;padding:0}.c1{color:#000000;font-size:11pt;font-family:"Arial"}.c3{max-width:468pt;background-color:#ffffff;padding:72pt 72pt 72pt 72pt}.c2{height:11pt}.c0{direction:ltr}.title{padding-top:24pt;line-height:1.0;text-align:left;color:#000000;font-size:36pt;font-family:"Arial";font-weight:bold;padding-bottom:6pt;page-break-after:avoid}.subtitle{padding-top:18pt;line-height:1.0;text-align:left;color:#666666;font-style:italic;font-size:24pt;font-family:"Georgia";padding-bottom:4pt;page-break-after:avoid}li{color:#000000;font-size:11pt;font-family:"Arial"}p{color:#000000;font-size:11pt;margin:0;font-family:"Arial"}h1{padding-top:24pt;line-height:1.0;text-align:left;color:#000000;font-size:24pt;font-family:"Arial";font-weight:bold;padding-bottom:24pt}h2{padding-top:22.4pt;line-height:1.0;text-align:left;color:#000000;font-size:18pt;font-family:"Arial";font-weight:bold;padding-bottom:22.4pt}h3{padding-top:24pt;line-height:1.0;text-align:left;color:#000000;font-size:14pt;font-family:"Arial";font-weight:bold;padding-bottom:24pt}h4{padding-top:25.6pt;line-height:1.0;text-align:left;color:#000000;font-size:12pt;font-family:"Arial";font-weight:bold;padding-bottom:25.6pt}h5{padding-top:25.6pt;line-height:1.0;text-align:left;color:#000000;font-size:9pt;font-family:"Arial";font-weight:bold;padding-bottom:25.6pt}h6{padding-top:36pt;line-height:1.0;text-align:left;color:#000000;font-size:8pt;font-family:"Arial";font-weight:bold;padding-bottom:36pt}
+    </style>
+    <p class="c0">
+        <span class="c1">my new note &lt;b&gt;test&lt;/b&gt;last</span>
+    </p>
+    <p class="c0 c2">
+        secondline<span class="c1"></span>
+    </p>
+    <p class="c0 c2">
+        <span style="font-weight: bold;">bold&nbsp;</span>
+    </p>
+    <p class="c0 c2">
+        <ul><li>dot1</li></ul>
+    </p>
+*/
+
+function extractTitle(html)
 {
+    if(!html || html.length == 0)
+        return null;
+
+    var firstParagraph = contentOfFirstTag('p', html);
+    var text = stripTags(firstParagraph);
+
+    text = text.replace(/&lt;/g, '');
+    text = text.replace(/&gt;/g, '');
+    text = text.replace(/&nbsp;/g, '');
+
     MAX_TITLE_WORDS = 5;
 
     var firstLine = text.split('\n')[0];
     var title = firstLine.split(' ').slice(0,MAX_TITLE_WORDS).join(' ');
 
     return title;
+}
+
+function contentOfFirstTag(tag, text, startFromIndex)
+{
+    var start_open_tag = '<'+tag;
+    var start_close_tag = '>';
+    var end_tag = '</'+tag+'>';
+
+    var start_open_index = text.indexOf(start_open_tag, startFromIndex);
+    var start_close_index = text.indexOf(start_close_tag, start_open_index);
+    var end_index = text.indexOf(end_tag, start_close_index);
+
+    return text.substring(start_close_index+start_close_tag.length, end_index);
+}
+
+function stripTags(text)
+{
+    var stripped = text;
+
+    while(true)
+    {
+        var start_index = stripped.indexOf('<');
+        var end_index = stripped.indexOf('>', start_index);
+
+        if(end_index > 0)
+            end_index += 1; // ie. '>' character
+
+        if(end_index >= stripped.length)
+            end_index = -1;
+
+        if(start_index >= 0) {
+            stripped = removeRange(stripped, start_index, end_index);
+        }
+
+        if(start_index < 0 || end_index < 0)
+            break;
+    }
+
+    return stripped;
+}
+
+
+function removeRange(s, start, end)
+{
+    var result = s.substring(0, start);
+
+    if(end >= 0)
+        result += s.substring(end);
+
+    return result;
+}
+
+
+function stripTag(tag, from)
+{
+    var start_tag = '<'+tag;
+    var end_tag = '</'+tag+'>';
+
+    var start_index = from.indexOf(start_tag);
+    var end_index = from.indexOf(end_tag);
+
+    if(start_index >= 0 && end_index >= 0)
+    {
+        return from.substring(0, start_index) + from.substring(end_index + end_tag.length);
+    }
+    else if(start_index >= 0)
+    {
+        end_tag = '>';
+        end_index = from.indexOf('>', start_index);
+
+        if(end_index)
+            return from.substring(0, start_index) + from.substring(end_index + end_tag.length);
+    }
+
+    return from;
 }

@@ -38,15 +38,21 @@ GDrive.prototype.auth = function(options, opt_callback_success, opt_callback_fai
 {
     try
     {
+        console.log('Authorising..');
+
         chrome.identity.getAuthToken(options, function(token)
         {
             if(token)
             {
+                console.log('Recieved token');
+
                 this.accessToken = token;
                 opt_callback_success && opt_callback_success();
             }
             else
             {
+                console.log('Error receivng token');
+
                 this.accessToken = null;
                 opt_callback_failure && opt_callback_failure();
             }
@@ -253,23 +259,26 @@ GDrive.prototype.list = function(success_callback, error_callback)
     this.filesRequest('GET', null, null, parameters, success_callback, error_callback);
 }
 
+
 GDrive.prototype.about = function(success_callback, error_callback)
 {
     var url = this.DRIVE_URI + '/about';
     this.jsonRequest('GET', url, success_callback, error_callback);
 }
 
+
 GDrive.prototype.overwriteAsHTML = function(fileId, title, utf8content, success_callback, error_callback)
 {
     var details = {
         insert: false,
         mimeType: 'text/html',
-        fileId: fileId
+        fileId: fileId,
         title: title
     };
 
     this.uploadUTF8(details, utf8content, success_callback, error_callback);
 }
+
 
 GDrive.prototype.insertAsHTML = function(parentId, title, utf8content, success_callback, error_callback)
 {
@@ -282,6 +291,7 @@ GDrive.prototype.insertAsHTML = function(parentId, title, utf8content, success_c
 
     this.uploadUTF8(details, utf8content, success_callback, error_callback);
 }
+
 
 GDrive.prototype.uploadUTF8 = function(details, utf8content, success_callback, error_callback)
 {
