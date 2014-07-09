@@ -26,6 +26,14 @@ document.addEventListener("DOMContentLoaded", function()
     loadState();
 
     gdrive = new GDrive();
+
+    gdrive.setupOAuth(
+    {
+        client_id: '747134525486-5ocg32qs9hcvpl0e28991qm1n7v91415.apps.googleusercontent.com',
+        client_secret: 'DuJnObwE3UiVdHEJ98URNvft',
+        api_scope: 'https://www.googleapis.com/auth/drive.file'
+    });
+
     gdrive.auth({interactive: false}, onAuthenticated);
 
     // automatically update the cache every 15 minutes
@@ -60,7 +68,6 @@ function updateCache(completed)
     var completed_wrapper = function(changesMade)
     {
         cache.lastChecked = new Date();
-
         state = StateEnum.IDLE;
 
         if(changesMade)
@@ -170,7 +177,7 @@ function cacheDocs(completed)
                     var cachedDoc = matchDocumentById(doc.item.id, cache.documents);
                     var requiresDownload = true;
 
-                    if(cachedDoc && cachedDoc.item.modifiedDate == doc.item.modifiedDate)
+                    if(cachedDoc && cachedDoc.item.version == doc.item.version)
                     {
                         requiresDownload = false;
 
@@ -240,7 +247,7 @@ function containsChanges(docListA, docListB)
         if(!docB)
             return true;
 
-        if(docA.item.modifiedDate != docB.item.modifiedDate)
+        if(docA.item.version != docB.item.version)
             return true;
     }
 

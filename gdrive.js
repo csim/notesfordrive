@@ -11,7 +11,7 @@ function stringify(params)
 
 function GDrive(selector)
 {
-    this.lastResponse = null;
+    this.googleAuth = null;
 
     this.__defineGetter__('DRIVE_URI', function() {
         return 'https://www.googleapis.com/drive/v2';
@@ -32,31 +32,19 @@ function GDrive(selector)
     this.__defineGetter__('DEFAULT_CHUNK_SIZE', function() {
         return 1024 * 1024 * 5; // 5MB;
     });
+
+    this.__defineGetter__('oauth', function() {
+        return this.googleAuth;
+    });
 }
 
-GDrive.prototype.auth = function(options, opt_callback_success, opt_callback_failure)
+
+
+GDrive.prototype.auth = function(options, opt_callback_authorized, opt_callback_failure)
 {
     try
     {
-        console.log('Authorising..');
-
-        chrome.identity.getAuthToken(options, function(token)
-        {
-            if(token)
-            {
-                console.log('Recieved token');
-
-                this.accessToken = token;
-                opt_callback_success && opt_callback_success();
-            }
-            else
-            {
-                console.log('Error receivng token');
-
-                this.accessToken = null;
-                opt_callback_failure && opt_callback_failure();
-            }
-        }.bind(this));
+        this.googleAuth.authorize(options, opt_callback_authorized, opt_callback_failure);
     }
     catch(e)
     {
@@ -64,34 +52,29 @@ GDrive.prototype.auth = function(options, opt_callback_success, opt_callback_fai
     }
 }
 
+
+GDrive.prototype.setupOAuth = function(config)
+{
+    this.googleAuth = new OAuth2('google', config);
+}
+
+
 GDrive.prototype.removeCachedAuthToken = function(opt_callback)
 {
-    if(this.accessToken)
-    {
-        var accessToken = this.accessToken;
-        this.accessToken = null;
+    this.googleAuth.clearAccessToken();
 
-        // remove token from the token cache
-        chrome.identity.removeCachedAuthToken({
-            token: accessToken
-        }, function() {
-            opt_callback && opt_callback();
-        });
-    }
-    else
-    {
-        opt_callback && opt_callback();
-    }
+    if(opt_callback)
+        opt_callback();
 }
 
 GDrive.prototype.revokeAuthToken = function(opt_callback)
 {
-    if(this.accessToken)
+    if( this.googleAuth.hasAccessToken() )
     {
         // make a request to revoke token
         var xhr = new XMLHttpRequest();
         xhr.open('GET', 'https://accounts.google.com/o/oauth2/revoke?token=' +
-            this.accessToken);
+            this.googleAuth.getAccessToken() );
         xhr.send();
         this.removeCachedAuthToken(opt_callback);
     }
@@ -99,22 +82,35 @@ GDrive.prototype.revokeAuthToken = function(opt_callback)
 
 GDrive.prototype.download = function(url, success_callback, error_callback)
 {
-    console.log(url);
+    //console.log(url);
 
     var xhr = new XMLHttpRequest();
     xhr.open('GET', url, true);
 
-    xhr.setRequestHeader('Authorization', 'Bearer ' + this.accessToken);
+    xhr.setRequestHeader('Authorization', 'Bearer ' + this.googleAuth.getAccessToken() );
 
     xhr.onload = function(e)
     {
-        success_callback(xhr.responseText, xhr, this);
-    }.bind(this);
+        if(this.status == 200)
+        {
+            if(success_callback)
+                success_callback(xhr.responseText, xhr);
+        }
+        else
+        {
+            console.log(xhr, xhr.getAllResponseHeaders());
+
+            if(error_callback)
+                error_callback(xhr);
+        }
+    };
 
     xhr.onerror = function(e)
     {
-        console.log(this, this.status, this.response, this.getAllResponseHeaders());
-        error_callback(xhr, this);
+        console.log(xhr, xhr.getAllResponseHeaders());
+
+        if(error_callback)
+            error_callback(xhr);
     };
 
     xhr.send();
@@ -123,7 +119,7 @@ GDrive.prototype.download = function(url, success_callback, error_callback)
 
 GDrive.prototype.upload = function(method, url, opt_data, opt_headers, success_callback, error_callback)
 {
-    console.log(url);
+    //console.log(url);
 
     var data = opt_data || null;
     var headers = opt_headers || {};
@@ -131,23 +127,37 @@ GDrive.prototype.upload = function(method, url, opt_data, opt_headers, success_c
     var xhr = new XMLHttpRequest();
     xhr.open(method, url, true);
 
-    xhr.setRequestHeader('Authorization', 'Bearer ' + this.accessToken);
+    xhr.setRequestHeader('Authorization', 'Bearer ' + this.googleAuth.getAccessToken() );
 
     for(var key in headers)
         xhr.setRequestHeader(key, headers[key]);
 
     xhr.onload = function(e)
     {
-        console.log(xhr.response);
+        //console.log(xhr.response);
 
-        this.lastResponse = JSON.parse(xhr.responseText)
-        success_callback(this.lastResponse, xhr, this);
-    }.bind(this);
+        if(this.status == 200)
+        {
+            var response = JSON.parse(xhr.responseText);
+
+            if(success_callback)
+                success_callback(response, xhr);
+        }
+        else
+        {
+            console.log(xhr, xhr.getAllResponseHeaders());
+
+            if(error_callback)
+                error_callback(xhr);
+        }
+    };
 
     xhr.onerror = function(e)
     {
-        console.log(this, this.status, this.response, this.getAllResponseHeaders());
-        error_callback(xhr, this);
+        console.log(xhr, xhr.getAllResponseHeaders());
+
+        if(error_callback)
+            error_callback(xhr);
     };
 
     xhr.send(data);
@@ -156,7 +166,7 @@ GDrive.prototype.upload = function(method, url, opt_data, opt_headers, success_c
 
 GDrive.prototype.jsonRequest = function(method, url, success_callback, error_callback, opt_data, opt_headers)
 {
-    console.log(method + ' ' + url);
+    //console.log(method + ' ' + url);
 
     var data = opt_data || null;
     var headers = opt_headers || {};
@@ -165,7 +175,7 @@ GDrive.prototype.jsonRequest = function(method, url, success_callback, error_cal
     xhr.open(method, url, true);
 
     // include common headers (auth and version) and add rest.
-    xhr.setRequestHeader('Authorization', 'Bearer ' + this.accessToken);
+    xhr.setRequestHeader('Authorization', 'Bearer ' + this.googleAuth.getAccessToken() );
 
     if(data && data.length) {
         xhr.setRequestHeader('Content-Type', 'application/json');
@@ -176,21 +186,30 @@ GDrive.prototype.jsonRequest = function(method, url, success_callback, error_cal
 
     xhr.onload = function(e)
     {
-        console.log(xhr.response);
+        //console.log(xhr.response);
 
-        this.lastResponse = JSON.parse(xhr.responseText);
+        if(this.status == 200)
+        {
+            var response = JSON.parse(xhr.responseText);
 
-        if(success_callback)
-            success_callback(this.lastResponse, xhr, this);
+            if(success_callback)
+                success_callback(response, xhr);
+        }
+        else
+        {
+            console.log(xhr, xhr.getAllResponseHeaders());
 
-    }.bind(this);
+            if(error_callback)
+                error_callback(xhr);
+        }
+    };
 
     xhr.onerror = function(e)
     {
-        console.log(this, this.status, this.response, this.getAllResponseHeaders());
+        console.log(xhr, xhr.getAllResponseHeaders());
 
         if(error_callback)
-            error_callback(xhr, this);
+            error_callback(xhr);
     };
 
     xhr.send(data);

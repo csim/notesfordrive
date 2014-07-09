@@ -1,7 +1,11 @@
 
 /* TODO
 
- - check for expired access tokens / change oauth2 provider
+ - check for 401 and 403's when doing XHR
+
+   https://developers.google.com/drive/web/practices
+
+   http://stackoverflow.com/questions/19929310/how-do-i-detect-an-invalid-auth-token-from-chrome-identity-getauthtoken
 
  - send new notes to top of list
 
@@ -9,8 +13,12 @@
 
  - right click menu for note list items for open in drive and trash options
 
+ - add sign out to options page
+
+
  THEN
  - drag and drop re-ordering of list items (save ordering to storage.sync)
+   or send last changed doc to top of list (ie. sort by modified date)
 
  - on first trash file show popover explaining they can undo this action from the Trash folder in Google Drive
 
@@ -25,6 +33,7 @@
  - simple mode (as an option): only show saving status when saving/saved then disappear after 2 seconds, no settings icon, no
  formatting controls (use air mode) -> "Standard UI or Streamlined UI"
 
+
  THEN
  - add button to gmail
 
@@ -35,6 +44,7 @@
  - associate multiple open instances with the gmail tab/account authenticated in
 
  - resizable window
+
 
  MISC
  - quill icon
@@ -132,22 +142,21 @@ function checkAuth(options)
         return;
     }
 
-    if(!background.gdrive.accessToken)
-    {
-        background.gdrive.auth(options, authenticationSucceeded, authenticationFailed);
-    }
-    else
-    {
-        authenticationSucceeded();
-    }
+    background.gdrive.auth(options, authenticationSucceeded, authenticationFailed);
 }
 
 function authenticationSucceeded()
 {
-    displayDocs();
+    /*
+    background.gdrive.revokeAuthToken( function(){
+        updateDisplay();
+    });
+    return;*/
 
     // lets update the cache every time the user opens the popup
     background.updateCache();
+
+    displayDocs();
 }
 
 function authenticationFailed()
@@ -386,12 +395,12 @@ function updateDisplay()
         return;
     }
 
-    if(!background.gdrive.accessToken)
+    if( !background.gdrive.oauth.hasAccessToken() || background.gdrive.oauth.isAccessTokenExpired() )
     {
         showSection('#auth-section');
         $('#auth-content').center();
 
-        return
+        return;
     }
     else
     {
@@ -402,8 +411,12 @@ function updateDisplay()
         }
         else
         {
+            console.log('updateDisplay chrome.storage.sync.get .. ');
+
             chrome.storage.sync.get('seen-instructions', function(result)
             {
+                console.log('updateDisplay chrome.storage.sync.get done ');
+
                 var hasSeenInstructions = result[ 'seen-instructions' ];
 
                 if(!hasSeenInstructions)

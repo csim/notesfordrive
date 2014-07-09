@@ -8,16 +8,11 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "oauth2": {
-        "client_id": "747134525486-gdrgbamug0ekf7p4ltl00d5rttq62kul.apps.googleusercontent.com",
-        "scopes": [
-            "https://www.googleapis.com/auth/drive.file"
-        ]
-  },
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA0YNPi9bbG8PRu6LJVU8iXIk4cjFWKTuUnVLHN4TG6g2UGsM/vBcmicHDKGZAi05Nb5pXTEf+RvOiFnGxjMkv6z7m5B/xIeyaS5+DUuOi5ObDEzgo3JebL5n+4WSWAgLOMQwRZ+VOkbYawGHIwLO9O+kKc5ejc65e30aK/lYN2P9VnyhS501MuqrMk9HpD5bcq54NWo6Wmsyhod8MVNObO/SARFurte9fzQ/BuF77TlvNWotNhCch18R2+tXbUsftKpdPhIjtse2HHta9o+FtLvahHG0ZXzLaE88vl0Az1dGIcOcrPu7srOWOFNPlRYRxrpEyAgfwc+tP0kD8ZjpexQIDAQAB",
   "default_locale": "en",
   "background": {
     "scripts": [
+      "oauth2/oauth2.js",
       "gdrive.js",
       "background.js"
     ],
@@ -30,12 +25,14 @@
     "default_popup": "popup.html"
   },
   "permissions": [
+    "tabs",
     "storage",
     "identity",
-      "https://ssl.gstatic.com/",
       "https://www.googleapis.com/",
+      "https://accounts.google.com/",
+
+      "https://ssl.gstatic.com/",
       "http://fonts.googleapis.com/",
-      "https://docs.google.com/",
-      "https://accounts.google.com/"
+      "https://docs.google.com/"
   ]
 }
