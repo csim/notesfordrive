@@ -7,8 +7,6 @@
 
  - put drive and trash items in a popup menu (to streamline UI)
 
- - automatically detect/sync changes from drive while the app is running
-
  - right click menu for note list items for open in drive and trash options
 
  THEN
@@ -65,6 +63,7 @@ document.addEventListener("DOMContentLoaded", function()
         checkAuth({interactive:true});
     });
 
+    $('.drive-folder-name').text( background.DEFAULT_FOLDER_NAME );
 
     window.setTimeout(function()
     {
@@ -75,7 +74,9 @@ document.addEventListener("DOMContentLoaded", function()
 
 chrome.runtime.onMessage.addListener( function(request, sender, sendResponse)
 {
-    if(request.cachingState)
+    // this will only be called when the cache has been updated with changes.
+    // ie. it won't be called if the Drive was checked and there were no changes
+    if(request.cacheUpdated)
     {
         displayDocs();
     }
@@ -85,23 +86,23 @@ chrome.runtime.onMessage.addListener( function(request, sender, sendResponse)
 function createSummernote()
 {
     $('.summernote').summernote(
-        {
-            height: 325,
+      {
+          height: 325,
 
-            minHeight: 325,  // set minimum height of editor
-            maxHeight: 325,  // set maximum height of editor
+          minHeight: 325,  // set minimum height of editor
+          maxHeight: 325,  // set maximum height of editor
 
-            focus: false,
+          focus: false,
 
-            toolbar: [
-                ['style', ['bold', 'italic', 'underline']],
-                ['fontsize', ['fontsize']],
-                ['color', ['color']],
-                ['para', ['ul', 'ol']]
-            ],
+          toolbar: [
+              ['style', ['bold', 'italic', 'underline']],
+              ['fontsize', ['fontsize']],
+              ['color', ['color']],
+              ['para', ['ul', 'ol']]
+          ],
 
-            onChange: onDocumentChange
-        });
+          onChange: onDocumentChange
+      });
 
     $('.note-editor').css('border', 'none');
     $('.note-resizebar').css('display', 'none');
@@ -114,10 +115,8 @@ function onDocumentChange(contents, $editable)
 
     if(doc)
     {
-        var html = $('.summernote').code();
-
         doc.dirty = true;
-        doc.contentHTML = html;
+        doc.contentHTML = $('.summernote').code();
 
         updateDocumentTitle(doc);
         saveDocument(doc);
@@ -130,6 +129,7 @@ function checkAuth(options)
     if(!navigator.onLine)
     {
         updateDisplay();
+        return;
     }
 
     if(!background.gdrive.accessToken)
@@ -144,17 +144,10 @@ function checkAuth(options)
 
 function authenticationSucceeded()
 {
-    if(background.cache.folder == null)
-    {
-        background.updateCache( function()
-        {
-            displayDocs();
-        });
-    }
-    else
-    {
-        displayDocs();
-    }
+    displayDocs();
+
+    // lets update the cache every time the user opens the popup
+    background.updateCache();
 }
 
 function authenticationFailed()
@@ -169,15 +162,21 @@ function displayDocs()
 
     if(background.cache.documents.length)
     {
-        $.each(background.cache.documents, function (index, doc)
+        $.each(background.cache.documents, function(index, doc)
         {
             addDocument(doc);
 
-            var setActive = background.lastActiveDocId === doc.item.id || (background.lastActiveDocId == null && index == 0);
-
-            if(setActive)
+            if(background.lastActiveDocId && doc.item && background.lastActiveDocId == doc.item.id)
+            {
                 setActiveDoc(doc);
+            }
         });
+
+        // if we didn't set an active doc then set the first
+        if( $('.active').length == 0 )
+        {
+            setActiveDoc( background.cache.documents[0] );
+        }
     }
 
     updateDisplay();
@@ -227,8 +226,7 @@ function setActiveDoc(doc)
     $('.summernote').code(doc.contentHTML);
     $('.summernote').data('editing-doc', doc);
 
-    if(doc.contentHTML.length == 0)
-        $('.summernote').summernote({focus:true});
+    focusActiveInput();
 
 
     $('#active-note-status').empty();
@@ -358,24 +356,30 @@ function saveDocument(doc)
 }
 
 
-function hideAll()
+function showSection(div)
 {
-    $('#auth-section').hide();
-    $('#message-section').hide();
-    $('#loading-section').hide();
-    $('#documents-section').hide();
-
-    $('#notes-list-buttons').hide();
-    $('#active-note-footer').hide();
+    showSections( [div] );
 }
+
+function showSections(divs)
+{
+    $('#auth-section').toggle( arrayContains('#auth-section', divs) );
+    $('#message-section').toggle( arrayContains('#message-section', divs) );
+    $('#loading-section').toggle( arrayContains('#loading-section', divs) );
+    $('#first-use-section').toggle( arrayContains('#first-use-section', divs) );
+    $('#documents-section').toggle( arrayContains('#documents-section', divs) );
+
+    $('#notes-list-buttons').toggle( arrayContains('#notes-list-buttons', divs) );
+    $('#active-note-footer').toggle( arrayContains('#active-note-footer', divs) );
+}
+
 
 function updateDisplay()
 {
-    hideAll();
-
     if(!navigator.onLine)
     {
-        $('#message-section').show();
+        showSection('#message-section');
+
         $("#message-content").text("You don't appear to have an internet connection.");
         $('#message-content').center();
 
@@ -384,7 +388,7 @@ function updateDisplay()
 
     if(!background.gdrive.accessToken)
     {
-        $('#auth-section').show();
+        showSection('#auth-section');
         $('#auth-content').center();
 
         return
@@ -393,29 +397,61 @@ function updateDisplay()
     {
         if(background.state == background.StateEnum.CACHING && background.cache.lastUpdated == null)
         {
-            $('#loading-section').show();
+            showSection('#loading-section');
             $('#loading-content').center();
         }
         else
         {
-            if(background.cache.documents.length > 0)
+            chrome.storage.sync.get('seen-instructions', function(result)
             {
-                $('#documents-section').show();
+                var hasSeenInstructions = result[ 'seen-instructions' ];
 
-                $('#notes-list-buttons').show();
-                $('#active-note-footer').show();
-            }
-            else
-            {
-                $('#message-section').show();
-                $('#message-content').text("You don't have any notes. Create one using the pencil icon below.");
-                $('#message-content').center();
+                if(!hasSeenInstructions)
+                {
+                    $('#first-use-got-it-button').click( function()
+                    {
+                        chrome.storage.sync.set({'seen-instructions': true});
+                        updateDisplay();
+                    });
 
-                $('#notes-list-buttons').show();
-            }
+                    showSection('#first-use-section');
+                }
+                else
+                {
+                    if(background.cache.documents.length > 0)
+                    {
+                        showSections( ['#documents-section', '#notes-list-buttons', '#active-note-footer'] );
+
+                        focusActiveInput();
+                    }
+                    else
+                    {
+                        showSections( ['#message-section', '#notes-list-buttons'] );
+
+                        $('#message-content').text("You don't have any notes. Create one using the pencil icon below.");
+                        $('#message-content').center();
+                    }
+                }
+            });
         }
     }
 }
+
+
+function focusActiveInput()
+{
+    var activeDoc = $('.summernote').data('editing-doc');
+
+    if(activeDoc)
+    {
+        // only set the focus in the text area when there is empty content
+        if(activeDoc.contentHTML == null || activeDoc.contentHTML.length == 0)
+        {
+            $('.summernote').summernote({focus:true});
+        }
+    }
+}
+
 
 
 function setLastActiveDocument(doc)
@@ -550,4 +586,10 @@ function stripTag(tag, from)
     }
 
     return from;
+}
+
+
+function arrayContains(needle, arrhaystack)
+{
+    return (arrhaystack.indexOf(needle) > -1);
 }

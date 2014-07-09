@@ -12,6 +12,8 @@ var state = StateEnum.IDLE;
 var gdrive = null;
 var lastActiveDocId = null;
 
+var cacheUpdateTimer = null;
+
 var cache =
 {
     folder: null,
@@ -25,17 +27,20 @@ document.addEventListener("DOMContentLoaded", function()
 
     gdrive = new GDrive();
     gdrive.auth({interactive: false}, onAuthenticated);
+
+    // automatically update the cache every 15 minutes
+    cacheUpdateTimer = setInterval(updateCache, 1000*60*15);
 });
 
 
 function loadState()
 {
-  LAST_ACTIVE_DOC_ID = 'last-active-doc-id';
+    LAST_ACTIVE_DOC_ID = 'last-active-doc-id';
 
-  chrome.storage.sync.get(LAST_ACTIVE_DOC_ID, function(result)
-  {
-      lastActiveDocId = result[ LAST_ACTIVE_DOC_ID ];
-  });
+    chrome.storage.sync.get(LAST_ACTIVE_DOC_ID, function(result)
+    {
+        lastActiveDocId = result[ LAST_ACTIVE_DOC_ID ];
+    });
 }
 
 
@@ -51,14 +56,15 @@ function updateCache(completed)
         return;
 
     state = StateEnum.CACHING;
-    chrome.runtime.sendMessage({'cachingState': state});
 
-    var completed_wrapper = function()
+    var completed_wrapper = function(changesMade)
     {
-        cache.lastUpdated = new Date();
+        cache.lastChecked = new Date();
 
         state = StateEnum.IDLE;
-        chrome.runtime.sendMessage({'cachingState': state});
+
+        if(changesMade)
+            chrome.runtime.sendMessage({'cacheUpdated': cache.lastUpdated});
 
         if(completed)
             completed();
@@ -119,6 +125,24 @@ function cacheDocs(completed)
 {
     cachingDocuments = [];
 
+    var checkComplete = function()
+    {
+        // check caching has completed
+        if( haveAllDownloaded(cachingDocuments) )
+        {
+            var changesMade = containsChanges(cache.documents, cachingDocuments);
+
+            if(changesMade)
+            {
+                cache.documents = cachingDocuments;
+                cache.lastUpdated = new Date();
+            }
+
+            if(completed)
+                completed(changesMade);
+        }
+    };
+
     gdrive.listChildrenDocs(cache.folder.id, MAX_DOCS, function(children_response)
     {
         if(children_response && children_response.items && children_response.items.length)
@@ -140,23 +164,34 @@ function cacheDocs(completed)
                 gdrive.getFile(child.id, function(item)
                 {
                     var doc = cachingDocuments[index];
-                    doc.item = item
+                    doc.item = item;
                     doc.title = item.title;
 
-                    gdrive.download(item.exportLinks['text/html'], function(responseData)
+                    var cachedDoc = matchDocumentById(doc.item.id, cache.documents);
+                    var requiresDownload = true;
+
+                    if(cachedDoc && cachedDoc.item.modifiedDate == doc.item.modifiedDate)
                     {
-                        doc.contentHTML = responseData;
+                        requiresDownload = false;
+
+                        doc.contentHTML = cachedDoc.contentHTML;
                         doc.hasDownloaded = true;
+                    }
 
-                        // check caching has completed
-                        if( haveAllDownloaded(cachingDocuments) )
+                    if(requiresDownload)
+                    {
+                        gdrive.download(item.exportLinks['text/html'], function(responseData)
                         {
-                            cache.documents = cachingDocuments;
+                            doc.contentHTML = responseData;
+                            doc.hasDownloaded = true;
 
-                            if(completed)
-                                completed();
-                        }
-                    })
+                            checkComplete();
+                        });
+                    }
+                    else
+                    {
+                        checkComplete();
+                    }
                 });
             });
         }
@@ -170,6 +205,47 @@ function cacheDocs(completed)
     });
 }
 
+function matchDocumentById(itemId, list)
+{
+    for(var i = 0; i < list.length; ++i)
+    {
+        var listDoc = list[i];
+
+        if(listDoc.item && listDoc.item.id == itemId)
+        {
+            return listDoc;
+        }
+    }
+
+    return null;
+}
+
+function containsChanges(docListA, docListB)
+{
+    if(!docListA && !docListB)
+      return false;
+
+    if(!docListA || !docListB)
+      return true;
+
+    if(docListA.length != docListB.length)
+      return true;
+
+    // test to see if every doc is contained in each list and modified dates are not different
+    for(var i = 0; i < docListA.length; ++i)
+    {
+        var docA = docListA[i];
+        var docB = matchDocumentById( docA.item.id, docListB );
+
+        if(!docB)
+            return true;
+
+        if(docA.item.modifiedDate != docB.item.modifiedDate)
+            return true;
+    }
+
+    return false;
+}
 
 function haveAllDownloaded(docs)
 {
