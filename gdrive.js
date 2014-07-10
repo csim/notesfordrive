@@ -163,16 +163,17 @@ GDrive.prototype.upload = function(method, url, opt_data, opt_headers, success_c
     xhr.send(data);
 }
 
+//GDrive.prototype.jsonRequest = function(method, url, success_callback, error_callback, opt_data, opt_headers, opt_has_retried)
 
-GDrive.prototype.jsonRequest = function(method, url, success_callback, error_callback, opt_data, opt_headers)
+GDrive.prototype.jsonRequest = function(config, success_callback, error_callback, opt_has_retried)
 {
     //console.log(method + ' ' + url);
 
-    var data = opt_data || null;
-    var headers = opt_headers || {};
+    var data = config.data || null;
+    var headers = config.headers || {};
 
     var xhr = new XMLHttpRequest();
-    xhr.open(method, url, true);
+    xhr.open(config.method, config.url, true);
 
     // include common headers (auth and version) and add rest.
     xhr.setRequestHeader('Authorization', 'Bearer ' + this.googleAuth.getAccessToken() );
@@ -184,11 +185,31 @@ GDrive.prototype.jsonRequest = function(method, url, success_callback, error_cal
     for(var key in headers)
         xhr.setRequestHeader(key, headers[key]);
 
+    var error_handler = function(xhr)
+    {
+        console.log(xhr, xhr.getAllResponseHeaders());
+
+        if(!opt_has_retried)
+        {
+            this.googleAuth.clearAccessToken();
+
+            this.auth({interactive:config.allowInteractiveReauth}, function()
+            {
+                this.jsonRequest()
+            });
+        }
+        else
+        {
+            if(error_callback)
+                error_callback(xhr);
+        }
+    }.bind(this);
+
     xhr.onload = function(e)
     {
         //console.log(xhr.response);
 
-        if(this.status == 200)
+        if(xhr.status == 200)
         {
             var response = JSON.parse(xhr.responseText);
 
@@ -196,20 +217,12 @@ GDrive.prototype.jsonRequest = function(method, url, success_callback, error_cal
                 success_callback(response, xhr);
         }
         else
-        {
-            console.log(xhr, xhr.getAllResponseHeaders());
-
-            if(error_callback)
-                error_callback(xhr);
-        }
+            error_handler(xhr);
     };
 
     xhr.onerror = function(e)
     {
-        console.log(xhr, xhr.getAllResponseHeaders());
-
-        if(error_callback)
-            error_callback(xhr);
+        error_handler(xhr);
     };
 
     xhr.send(data);
