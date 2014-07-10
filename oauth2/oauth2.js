@@ -173,7 +173,6 @@ OAuth2.prototype.refreshAccessToken = function(refreshToken, callback) {
         {
             if(xhr.status == 200)
             {
-                console.log(xhr.responseText);
                 // Parse response with JSON
                 var obj = JSON.parse(xhr.responseText);
                 // Callback with the tokens
@@ -206,7 +205,7 @@ OAuth2.prototype.finishAuth = function(title, callback)
     try
     {
         authorizationCode = that.adapter.parseAuthorizationCode(title);
-        console.log(authorizationCode);
+        //console.log(authorizationCode);
     }
     catch(e)
     {
@@ -422,7 +421,7 @@ OAuth2.prototype.authorize = function(options, callback_success, callback_failur
         else if( that.isAccessTokenExpired() )
         {
             // There's an existing access token but it's expired
-            if (data.refreshToken)
+            if(data.refreshToken)
             {
                 that.refreshAccessToken(data.refreshToken, function(access_token, expires_in, refresh_token)
                 {

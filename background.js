@@ -41,6 +41,21 @@ document.addEventListener("DOMContentLoaded", function()
 });
 
 
+chrome.runtime.onConnect.addListener(function(port_connected)
+{
+    // when the popup is displayed allow interactive reauthentication on 401's
+    if(port_connected.name == 'popup')
+    {
+        gdrive.setAllowInteractiveReauth(true);
+
+        port_connected.onDisconnect.addListener(function(port_disconnected)
+        {
+            gdrive.setAllowInteractiveReauth(false);
+        });
+    }
+});
+
+
 function loadState()
 {
     LAST_ACTIVE_DOC_ID = 'last-active-doc-id';

@@ -1,13 +1,7 @@
 
 /* TODO
 
- - check for 401 and 403's when doing XHR
-
-   https://developers.google.com/drive/web/practices
-
-   http://stackoverflow.com/questions/19929310/how-do-i-detect-an-invalid-auth-token-from-chrome-identity-getauthtoken
-
- - send new notes to top of list
+ - send new and most recently edited notes to top of list
 
  - put drive and trash items in a popup menu (to streamline UI)
 
@@ -15,13 +9,14 @@
 
  - add sign out to options page
 
+ BUG - bolding first line of a new note still does not extract correctly
+ BUG - change item attribute id (from guid to item.id) when first saved/inserted so last-active-doc is correct
+
+ Summernote - links are shit (hack source to disable)
+ Summernote - command text in popovers is shit (hack source to disable)
+
 
  THEN
- - drag and drop re-ordering of list items (save ordering to storage.sync)
-   or send last changed doc to top of list (ie. sort by modified date)
-
- - on first trash file show popover explaining they can undo this action from the Trash folder in Google Drive
-
  - open existing doc (save opened doc id's to chrome.storage) + right click menu for choosing this "Open from Drive"
    - could store opened doc id's as properties of the master folder so they are accessible in other browser instances
 
@@ -41,8 +36,6 @@
 
  - show photos (with name in popover) of users the file is shared with
 
- - associate multiple open instances with the gmail tab/account authenticated in
-
  - resizable window
 
 
@@ -51,10 +44,13 @@
 
  */
 
+// this is used to configure whether interactive reauthentication is enabled on 401's (ie. when access tokens expire)
+var port = chrome.runtime.connect ( {name: 'popup'} );
+
 var background = chrome.extension.getBackgroundPage();
 
 
-document.addEventListener("DOMContentLoaded", function()
+document.addEventListener('DOMContentLoaded', function()
 {
     createSummernote();
 
