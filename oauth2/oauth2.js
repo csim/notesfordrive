@@ -126,6 +126,9 @@ OAuth2.prototype.getAccessAndRefreshTokens = function(authorizationCode, callbac
     xhr.addEventListener('readystatechange', function(event) {
         if (xhr.readyState == 4) {
             if (xhr.status == 200) {
+                console.log('getAccessAndRefreshTokens:');
+                console.log(xhr.responseText);
+
                 // Callback with the data (incl. tokens).
                 callback(that.adapter.parseAccessToken(xhr.responseText));
             }
@@ -141,6 +144,10 @@ OAuth2.prototype.getAccessAndRefreshTokens = function(authorizationCode, callbac
         for (key in items) {
             formData.append(key, items[key]);
         }
+
+        console.log('getAccessAndRefreshTokens POST');
+        console.log(formData);
+
         xhr.open(method, that.adapter.accessTokenURL(), true);
         xhr.send(formData);
     } else if (method == 'GET') {
@@ -409,6 +416,9 @@ OAuth2.prototype.authorize = function(options, callback_success, callback_failur
 
         if(!data.accessToken)
         {
+            var timestamp = '[' + new Date().toUTCString() + '] ';
+            console.log(timestamp + 'OAuth2.prototype.authorize - no access token');
+
             // There's no access token yet. Start the authorizationCode flow
             if(options.interactive)
                 that.openAuthorizationCodePopup(callback_success);
@@ -420,6 +430,9 @@ OAuth2.prototype.authorize = function(options, callback_success, callback_failur
         }
         else if( that.isAccessTokenExpired() )
         {
+            var timestamp = '[' + new Date().toUTCString() + '] ';
+            console.log(timestamp + 'OAuth2.prototype.authorize - access token expired');
+
             // There's an existing access token but it's expired
             if(data.refreshToken)
             {
@@ -427,17 +440,26 @@ OAuth2.prototype.authorize = function(options, callback_success, callback_failur
                 {
                     if(!access_token)
                     {
+                        var timestamp = '[' + new Date().toUTCString() + '] ';
+                        console.log(timestamp + 'OAuth2.prototype.authorize - access token refresh failed');
+
                         if(callback_failure)
                             callback_failure();
                     }
                     else
                     {
+                        var timestamp = '[' + new Date().toUTCString() + '] ';
+                        console.log(timestamp + 'OAuth2.prototype.authorize - access token refreshed');
+
                         var newData = that.get();
                         newData.accessTokenDate = new Date().valueOf();
                         newData.accessToken = access_token;
                         newData.expiresIn = expires_in;
-                        newData.refreshToken = refresh_token;
+                        newData.refreshToken = refresh_token || newData.refreshToken;
                         that.setSource(newData);
+
+                        console.log('access: ' + newData.accessToken);
+                        console.log('refresh: ' + newData.refreshToken);
 
                         // Callback when we finish refreshing
                         if (callback_success) {
@@ -448,6 +470,9 @@ OAuth2.prototype.authorize = function(options, callback_success, callback_failur
             }
             else
             {
+                var timestamp = '[' + new Date().toUTCString() + '] ';
+                console.log(timestamp + 'OAuth2.prototype.authorize - no refresh token');
+
                 // No refresh token... just do the popup thing again
                 if(options.interactive)
                     that.openAuthorizationCodePopup(callback_success);
@@ -460,6 +485,16 @@ OAuth2.prototype.authorize = function(options, callback_success, callback_failur
         }
         else
         {
+            var timestamp = '[' + new Date().toUTCString() + '] ';
+            console.log(timestamp + 'OAuth2.prototype.authorize - we have an unexpired access token already, using it');
+
+            console.log('access: ' + data.accessToken);
+            console.log('refresh: ' + data.refreshToken);
+
+            var timestamp_exp_at = new Date( data.accessTokenDate + data.expiresIn * 1000 );
+            var timestamp_exp_in = (data.expiresIn - (new Date().valueOf() - data.accessTokenDate)/1000 ) / 60;
+            console.log('token expires at ' + timestamp_exp_at.toUTCString() + ' in ' + timestamp_exp_in + ' minutes');
+
             // We have an access token, and it's not expired yet
             if (callback_success) {
                 callback_success();

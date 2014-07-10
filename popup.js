@@ -44,10 +44,23 @@
 
  */
 
-// this is used to configure whether interactive reauthentication is enabled on 401's (ie. when access tokens expire)
-var port = chrome.runtime.connect ( {name: 'popup'} );
+/*
+ More Extension Ideas
+
+ - Quick Links for Google Drive
+
+    - display a list of google docs that you care about (ie. have choosen to open)
+    - clicking one one opens it up directly for editing in Drive
+    - it simply needs the doc's title, who/when it was last modified by/ (ie. picture) and if there are
+      unseen changes (ie. bold it)
+
+ */
+
 
 var background = chrome.extension.getBackgroundPage();
+
+// this is used to configure whether interactive reauthentication is enabled on 401's (ie. when access tokens expire)
+var port = chrome.runtime.connect( {name: 'popup'} );
 
 
 document.addEventListener('DOMContentLoaded', function()

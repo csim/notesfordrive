@@ -110,17 +110,23 @@ GDrive.prototype.authenticatedRequest = function(config, success_callback, error
         {
             var authentication_succeeded = function()
             {
+                console.log('retry_handler authentication_succeeded');
+
                 this.authenticatedRequest(config, success_callback, error_callback, true);
 
             }.bind(this);
 
             var authentication_failed = function()
             {
+                console.log('retry_handler authentication_failed');
+
                 // second attempt - clear the access token and start from scratch
                 this.googleAuth.clearAccessToken();
 
                 this.auth({interactive:config.allowInteractiveReauth}, authentication_succeeded, function()
                 {
+                    console.log('retry_handler authentication_failed failed-again');
+
                     // no dice - bail
                     if(error_callback)
                         error_callback(xhr);
