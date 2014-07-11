@@ -23,8 +23,6 @@ var cache =
 
 document.addEventListener("DOMContentLoaded", function()
 {
-    loadState();
-
     gdrive = new GDrive();
 
     gdrive.setupOAuth(
@@ -34,10 +32,11 @@ document.addEventListener("DOMContentLoaded", function()
         api_scope: 'https://www.googleapis.com/auth/drive.file'
     });
 
-    gdrive.auth({interactive: false}, onAuthenticated);
-
     // automatically update the cache every 15 minutes
     cacheUpdateTimer = setInterval(updateCache, 1000*60*15);
+
+    loadState();
+    gdrive.auth({interactive: false}, onAuthenticated);
 });
 
 
@@ -87,6 +86,14 @@ function updateCache(completed)
 
         if(changesMade)
             chrome.runtime.sendMessage({'cacheUpdated': cache.lastUpdated});
+        else
+        {
+            // edge case for when folder created during a different session or on a different machine
+            if(!cache.lastUpdated)
+            {
+                chrome.runtime.sendMessage({'initialCacheUpdateComplete': true});
+            }
+        }
 
         if(completed)
             completed();
@@ -111,7 +118,7 @@ function getFolder(name, completed)
 {
     var success = function(response)
     {
-        if(response.items.length > 0)
+        if( response.items && response.items.length > 0)
         {
             completed( response.items[0] );
         }
@@ -139,7 +146,13 @@ function getFolder(name, completed)
 
 function setupDocumentsFolder(name, completed)
 {
-    gdrive.createFolder(name, 'root', completed)
+    gdrive.createFolder(name, 'root', function(response)
+    {
+        cache.lastUpdated = new Date();
+
+        if(completed)
+            completed(response);
+    })
 }
 
 
@@ -222,7 +235,7 @@ function cacheDocs(completed)
             cache.documents = [];
 
             if(completed)
-                completed();
+                completed(false); // no changes made
         }
     });
 }
@@ -244,20 +257,24 @@ function matchDocumentById(itemId, list)
 
 function containsChanges(docListA, docListB)
 {
-    if(!docListA && !docListB)
+    // first clean the lists to remove notes that have not yet been synced to the server
+    var cleanListA = removeUnsynced(docListA);
+    var cleanListB = removeUnsynced(docListB);
+
+    if(!cleanListA && !cleanListB)
       return false;
 
-    if(!docListA || !docListB)
+    if(!cleanListA || !cleanListB)
       return true;
 
-    if(docListA.length != docListB.length)
+    if(cleanListA.length != cleanListB.length)
       return true;
 
     // test to see if every doc is contained in each list and modified dates are not different
-    for(var i = 0; i < docListA.length; ++i)
+    for(var i = 0; i < cleanListA.length; ++i)
     {
-        var docA = docListA[i];
-        var docB = matchDocumentById( docA.item.id, docListB );
+        var docA = cleanListA[i];
+        var docB = matchDocumentById( docA.item.id, cleanListB );
 
         if(!docB)
             return true;
@@ -267,6 +284,21 @@ function containsChanges(docListA, docListB)
     }
 
     return false;
+}
+
+function removeUnsynced(docList)
+{
+    var cleanList = [];
+
+    for(var i = 0; i < docList.length; ++i)
+    {
+        var doc = docList[i];
+
+        if(!doc.requiresInsert)
+            cleanList.push(doc);
+    }
+
+    return cleanList;
 }
 
 function haveAllDownloaded(docs)

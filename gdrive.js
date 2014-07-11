@@ -77,14 +77,18 @@ GDrive.prototype.revokeAuthToken = function(opt_callback)
 {
     if( this.googleAuth.hasAccessToken() )
     {
-        var xhr = new XMLHttpRequest();
+        if(navigator.onLine)
+        {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'https://accounts.google.com/o/oauth2/revoke?token=' +
+                this.googleAuth.getAccessToken() );
+            xhr.send();
+        }
 
-        xhr.open('GET', 'https://accounts.google.com/o/oauth2/revoke?token=' +
-            this.googleAuth.getAccessToken() );
-        xhr.send();
-
-        this.removeCachedAuthToken(opt_callback);
+        this.googleAuth.clearAccessToken();
     }
+
+    opt_callback && opt_callback();
 }
 
 
@@ -125,12 +129,17 @@ GDrive.prototype.authenticatedRequest = function(config, success_callback, error
 
                 this.auth({interactive:config.allowInteractiveReauth}, authentication_succeeded, function()
                 {
-                    console.log('retry_handler authentication_failed failed-again');
+                    console.log('retry_handler authentication_failed failed-again, revoking');
 
-                    // no dice - bail
-                    if(error_callback)
-                        error_callback(xhr);
-                });
+                    // no dice - could be a token issue - revoke it and start from scratch
+                    this.revokeAccessToken( function()
+                    {
+                        if(error_callback)
+                            error_callback(xhr);
+
+                        chrome.runtime.sendMessage( {'authenticationFailed': true} );
+                    })
+                }.bind(this));
 
             }.bind(this);
 

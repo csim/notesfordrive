@@ -38,7 +38,7 @@ h1
 {
     position: absolute;
     width: 100%;
-    height: 44px;
+    height: 42px;
     top: 0;
     background-color: #ff4d6f;
     border-bottom: 2px solid #df4464;
@@ -58,7 +58,7 @@ h1
 {
     position: absolute;
     width: 100%;
-    top: 44px;
+    top: 42px;
     bottom: 40px;
 }
 
@@ -237,7 +237,7 @@ h1
 
 #app-actions
 {
-    position: absolute; bottom: -2px; right: 3px;
+    position: absolute; bottom: -3px; right: 3px;
 }
 
 #settings-button

@@ -10,13 +10,15 @@
  - add sign out to options page
 
  BUG - bolding first line of a new note still does not extract correctly
- BUG - change item attribute id (from guid to item.id) when first saved/inserted so last-active-doc is correct
 
  Summernote - links are shit (hack source to disable)
  Summernote - command text in popovers is shit (hack source to disable)
 
 
  THEN
+ - offline support 
+   - store document cache in chrome local storage - upload when connection available
+
  - open existing doc (save opened doc id's to chrome.storage) + right click menu for choosing this "Open from Drive"
    - could store opened doc id's as properties of the master folder so they are accessible in other browser instances
 
@@ -95,9 +97,15 @@ chrome.runtime.onMessage.addListener( function(request, sender, sendResponse)
 {
     // this will only be called when the cache has been updated with changes.
     // ie. it won't be called if the Drive was checked and there were no changes
-    if(request.cacheUpdated)
+    if(request.cacheUpdated || request.initialCacheUpdateComplete)
     {
         displayDocs();
+    }
+
+    // this will be sent from any gdrive calls that fail to re-authenticate
+    if(request.authenticationFailed)
+    {
+        authenticationFailed();
     }
 });
 
@@ -151,21 +159,25 @@ function checkAuth(options)
         return;
     }
 
-    background.gdrive.auth(options, authenticationSucceeded, authenticationFailed);
+    if( !background.gdrive.oauth.hasAccessToken() )
+    {
+        background.gdrive.auth(options, authenticationSucceeded, authenticationFailed);
+    }
+    else
+    {
+        background.gdrive.oauth.printAccessTokenData();
+
+        // we have an access token - even if its expired it will be automatically refreshed on the next server call
+        authenticationSucceeded();
+    }
 }
 
 function authenticationSucceeded()
 {
-    /*
-    background.gdrive.revokeAuthToken( function(){
-        updateDisplay();
-    });
-    return;*/
+    displayDocs();
 
     // lets update the cache every time the user opens the popup
     background.updateCache();
-
-    displayDocs();
 }
 
 function authenticationFailed()
@@ -207,7 +219,7 @@ function addDocument(doc)
     var id = doc.item ? doc.item.id : guid();
 
     var e = $("<div class='notes-list-item'/>");
-    e.attr('id', 'nli-' + id);
+    e.attr('id', id);
     e.data('doc', doc);
 
     doc.$notesListElement = e;
@@ -355,7 +367,17 @@ function saveDocument(doc)
         doc.item = item_response;
         doc.saving = false;
 
+        background.cache.lastUpdated = new Date();
+
         $('#active-note-status').text('All changes saved to Drive');
+
+        // update the list item element id (ie. for the case when the doc required insertion and had a guid)
+        doc.$notesListElement.attr('id', doc.item.id);
+
+        if( $('.summernote').data('editing-doc') == doc )
+        {
+            setLastActiveDocument(doc);
+        }
 
         // automatically save pending changes once current save has completed
         if(doc.dirty)
@@ -404,7 +426,7 @@ function updateDisplay()
         return;
     }
 
-    if( !background.gdrive.oauth.hasAccessToken() || background.gdrive.oauth.isAccessTokenExpired() )
+    if( !background.gdrive.oauth.hasAccessToken() )
     {
         showSection('#auth-section');
         $('#auth-content').center();
@@ -420,12 +442,8 @@ function updateDisplay()
         }
         else
         {
-            console.log('updateDisplay chrome.storage.sync.get .. ');
-
             chrome.storage.sync.get('seen-instructions', function(result)
             {
-                console.log('updateDisplay chrome.storage.sync.get done ');
-
                 var hasSeenInstructions = result[ 'seen-instructions' ];
 
                 if(!hasSeenInstructions)
@@ -521,8 +539,6 @@ function extractTitle(html)
 {
     if(!html || html.length == 0)
         return null;
-
-    console.log('extractTitle: ' + html);
 
     var firstParagraph = contentOfFirstTag('p', html) || html;
     var text = stripTags(firstParagraph);

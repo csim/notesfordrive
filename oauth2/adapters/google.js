@@ -2,18 +2,17 @@ OAuth2.adapter('google',
 {
     authorizationCodeURL: function(config) {
         return ('https://accounts.google.com/o/oauth2/auth?' +
-            'approval_prompt=auto&' +
+            'approval_prompt=force&' +
             'client_id={{CLIENT_ID}}&' +
             'redirect_uri={{REDIRECT_URI}}&' +
             'scope={{API_SCOPE}}&' +
             'access_type=offline&' +
+         // 'include_granted_scopes=true&' +
             'response_type=code')
             .replace('{{CLIENT_ID}}', config.clientId)
             .replace('{{REDIRECT_URI}}', this.redirectURL(config))
             .replace('{{API_SCOPE}}', config.apiScope);
     },
-
-    // 'include_granted_scopes=true'
 
     redirectURL: function(config) {
         return 'urn:ietf:wg:oauth:2.0:oob';
