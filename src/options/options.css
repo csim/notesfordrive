@@ -1,0 +1,52 @@
+
+body
+{
+    background-color: #fff;
+    padding: 30px 60px 30px 60px;
+    margin: 0px;
+    font-family: Helvetica, Ubuntu, Arial, sans-serif;
+}
+
+.title
+{
+    color: #525252;
+    font-size: 34px;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.sep
+{
+    color: #636363;
+    border-right: 2px solid #7d7d7d;
+}
+
+hr
+{
+    margin-top: 10px;
+    border-top: 1px solid #ddd;
+}
+
+#sign-out-button
+{
+    color: white;
+    font-family: 'Open Sans', sans-serif;
+    outline: none;
+    box-shadow: none;
+    background-color: #ff414b;
+    transition: all 0.1s linear;
+    padding-left: 20px;
+    padding-right: 20px;
+    margin: 10px;
+}
+#sign-out-button:hover
+{
+    background-color: #d63740;
+}
+
+
+#signed-in-as
+{
+    display: none;
+    font-size: 1.15em;
+    color: #555555;
+}

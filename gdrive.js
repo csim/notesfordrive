@@ -180,7 +180,12 @@ GDrive.prototype.authenticatedRequest = function(config, success_callback, error
 
     xhr.onerror = function(e)
     {
-        error_handler(xhr);
+        console.log('On Error:');
+        console.log( xhr );
+        console.log( e );
+
+        if(error_handler)
+            error_handler(xhr);
     };
 
     xhr.send(data);

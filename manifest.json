@@ -18,7 +18,7 @@
     ],
     "persistent": true
   },
-  "options_page": "src/options/index.html",
+  "options_page": "src/options/options.html",
   "browser_action": {
     "default_icon": "icons/icon19.png",
     "default_title": "Notes",

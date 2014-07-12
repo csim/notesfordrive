@@ -7,8 +7,6 @@
 
  - right click menu for note list items for open in drive and trash options
 
- - add sign out to options page
-
  BUG - bolding first line of a new note still does not extract correctly
 
  Summernote - links are shit (hack source to disable)

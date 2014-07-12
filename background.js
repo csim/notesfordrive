@@ -49,6 +49,7 @@ chrome.runtime.onConnect.addListener(function(port_connected)
 
         port_connected.onDisconnect.addListener(function(port_disconnected)
         {
+            removeEmptyDocuments();
             gdrive.setAllowInteractiveReauth(false);
         });
     }
@@ -79,18 +80,27 @@ function updateCache(completed)
 
     state = StateEnum.CACHING;
 
+    console.log('updating cache..');
+
     var completed_wrapper = function(changesMade)
     {
         cache.lastChecked = new Date();
         state = StateEnum.IDLE;
 
         if(changesMade)
+        {
+            console.log('updateCache completed_wrapper changes made');
             chrome.runtime.sendMessage({'cacheUpdated': cache.lastUpdated});
+        }
         else
         {
+            console.log('updateCache completed_wrapper no changes');
+
             // edge case for when folder created during a different session or on a different machine
             if(!cache.lastUpdated)
             {
+                console.log('updateCache completed_wrapper initialCacheUpdateComplete');
+
                 chrome.runtime.sendMessage({'initialCacheUpdateComplete': true});
             }
         }
@@ -160,21 +170,26 @@ function cacheDocs(completed)
 {
     cachingDocuments = [];
 
+    var finaliseCacheDocs = function()
+    {
+        var changesMade = containsChanges(cache.documents, cachingDocuments);
+
+        if(changesMade)
+        {
+            cache.documents = cachingDocuments;
+            cache.lastUpdated = new Date();
+        }
+
+        if(completed)
+            completed(changesMade);
+    };
+
     var checkComplete = function()
     {
         // check caching has completed
         if( haveAllDownloaded(cachingDocuments) )
         {
-            var changesMade = containsChanges(cache.documents, cachingDocuments);
-
-            if(changesMade)
-            {
-                cache.documents = cachingDocuments;
-                cache.lastUpdated = new Date();
-            }
-
-            if(completed)
-                completed(changesMade);
+            finaliseCacheDocs();
         }
     };
 
@@ -209,6 +224,7 @@ function cacheDocs(completed)
                     {
                         requiresDownload = false;
 
+                        doc.title = cachedDoc.title;
                         doc.contentHTML = cachedDoc.contentHTML;
                         doc.hasDownloaded = true;
                     }
@@ -232,10 +248,7 @@ function cacheDocs(completed)
         }
         else
         {
-            cache.documents = [];
-
-            if(completed)
-                completed(false); // no changes made
+            finaliseCacheDocs();
         }
     });
 }
@@ -301,9 +314,24 @@ function removeUnsynced(docList)
     return cleanList;
 }
 
+function removeEmptyDocuments()
+{
+    var keep = [];
+
+    for(var i = 0; i < cache.documents.length; ++i)
+    {
+        var doc = cache.documents[i];
+
+        if(doc.contentHTML)
+            keep.push(doc);
+    }
+
+    cache.documents = keep;
+}
+
 function haveAllDownloaded(docs)
 {
-    for(i = 0; i < docs.length; i++)
+    for(var i = 0; i < docs.length; i++)
     {
         var doc = docs[i];
 
