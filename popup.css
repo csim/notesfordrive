@@ -3,7 +3,7 @@ body
     background-color: #fff;
     padding: 0px;
     margin: 0px;
-    height: 450px;
+    height: 500px;
     width: 750px;
     font-family: Helvetica, Ubuntu, Arial, sans-serif;
 }
@@ -207,7 +207,7 @@ h1
 
 #active-note-actions
 {
-    float: right
+    float: right;
 }
 
 #active-note-status
@@ -334,6 +334,21 @@ h1
     padding-right: 2px;
 }
 
+
+#note-actions-button
+{
+    padding-bottom: 5px;
+    color: rgb(124, 124, 124);
+    outline: none;
+    box-shadow: none;
+    opacity: 0.6;
+    font-size: 20px;
+    transition: opacity 0.1s linear;
+}
+#note-actions-button:hover
+{
+    opacity: 1;
+}
 
 
 .drive-icon

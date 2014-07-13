@@ -1,14 +1,4 @@
 
-function stringify(params)
-{
-    if(!params || params.length === 0)
-        return null;
-
-    var b, c = [];
-    for (b in params) c.push(encodeURIComponent(b) + "=" + encodeURIComponent(params[b]));
-    return c.join("&")
-}
-
 function GDrive(selector)
 {
     this.googleAuth = null;
@@ -245,7 +235,7 @@ GDrive.prototype.filesRequest = function(method, id, fragment, parameters, succe
         url += fragment;
 
     if(parameters)
-        url += '?' + stringify(parameters);
+        url += '?' + stringifyUrlParams(parameters);
 
     var config =
     {
@@ -457,7 +447,7 @@ GDrive.prototype.uploadUTF8 = function(details, utf8content, success_callback, e
         'convert': true
     };
 
-    url += '?' + stringify(queryParameters);
+    url += '?' + stringifyUrlParams(queryParameters);
 
     var headers = {
         'Content-Type': 'multipart/mixed; boundary="' + boundary + '"'
@@ -465,4 +455,15 @@ GDrive.prototype.uploadUTF8 = function(details, utf8content, success_callback, e
 
     var method = details.insert ? 'POST' : 'PUT';
     this.upload(method, url, multipartRequestBody, headers, success_callback, error_callback);
+}
+
+
+function stringifyUrlParams(params)
+{
+    if(!params || params.length === 0)
+        return null;
+
+    var b, c = [];
+    for (b in params) c.push(encodeURIComponent(b) + "=" + encodeURIComponent(params[b]));
+    return c.join("&")
 }

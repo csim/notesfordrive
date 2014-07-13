@@ -26,8 +26,10 @@ function updateDisplay()
     {
         background.gdrive.about( function(response)
         {
-            $('#signed-in-as').text('You are signed in as ' + response.user.emailAddress);
-            $('#signed-in-as').fadeIn();
+            var $description = $('#signed-in-as');
+
+            $description.text('You are signed in as ' + response.user.emailAddress);
+            $description.fadeIn();
         })
     }
     else

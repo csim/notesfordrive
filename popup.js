@@ -7,7 +7,9 @@
 
  - right click menu for note list items for open in drive and trash options
 
- BUG - bolding first line of a new note still does not extract correctly
+ - add resize handles to bottom-bar
+
+ - notes list items scrolling issues
 
  Summernote - links are shit (hack source to disable)
  Summernote - command text in popovers is shit (hack source to disable)
@@ -59,7 +61,7 @@
 
 var background = chrome.extension.getBackgroundPage();
 
-// this is used to configure whether interactive reauthentication is enabled on 401's (ie. when access tokens expire)
+// this is used to configure whether interactive re-authentication is enabled on 401's (ie. when access tokens expire)
 var port = chrome.runtime.connect( {name: 'popup'} );
 
 
@@ -67,17 +69,17 @@ document.addEventListener('DOMContentLoaded', function()
 {
     createSummernote();
 
-    $('#settings-button').unbind().click( function()
+    $('#settings-button').click( function()
     {
-        chrome.tabs.create({'url': chrome.extension.getURL("src/options/index.html") } )
+        chrome.tabs.create({'url': chrome.extension.getURL("src/options/options.html") } )
     });
 
-    $('#new-button').unbind().click( function()
+    $('#new-button').click( function()
     {
         createDocument();
     });
 
-    $('#authorize-button').unbind().click( function()
+    $('#authorize-button').click( function()
     {
         checkAuth({interactive:true});
     });
@@ -174,7 +176,7 @@ function authenticationSucceeded()
 {
     displayDocs();
 
-    // lets update the cache every time the user opens the popup
+    // update the cache every time the user opens the popup incase changes have been made to the documents in drive
     background.updateCache();
 }
 
@@ -538,7 +540,7 @@ function extractTitle(html)
     if(!html || html.length == 0)
         return null;
 
-    var firstParagraph = contentOfFirstTag('p', html) || html;
+    var firstParagraph = contentOfFirstTag('p', html) || contentUntilTag('div', html);
     var text = stripTags(firstParagraph);
 
     text = text.replace(/&lt;/g, '');
@@ -559,7 +561,22 @@ function contentOfFirstTag(tag, text, startFromIndex)
     var start_close_index = text.indexOf(start_close_tag, start_open_index);
     var end_index = text.indexOf(end_tag, start_close_index);
 
+    if(start_open_index < 0)
+        return null;
+
     return text.substring(start_close_index+start_close_tag.length, end_index);
+}
+
+function contentUntilTag(tag, text, startFromIndex)
+{
+    var start_open_tag = '<'+tag;
+
+    var start_open_index = text.indexOf(start_open_tag, startFromIndex);
+
+    if(start_open_index < 0)
+        return text;
+
+    return text.substring(0, start_open_index);
 }
 
 function stripTags(text)

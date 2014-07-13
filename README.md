@@ -1,7 +1,7 @@
-notesfordrive
+Notes for Google Drive
 =============
 
-A chrome extension to store notes as Google Drive documents.
+A Chrome extension to create and save notes as documents to Google Drive.
 
 Features:
 - Clean and modern UI

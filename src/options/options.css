@@ -11,7 +11,12 @@ body
 {
     color: #525252;
     font-size: 34px;
-    font-family: 'Open Sans', sans-serif;
+}
+
+.subtitle
+{
+    color: #6d6d6d;
+    font-size: 22px;
 }
 
 .sep
@@ -20,9 +25,26 @@ body
     border-right: 2px solid #7d7d7d;
 }
 
+.dot
+{
+    color: #525252;
+}
+
+.text
+{
+    font-size: 1em;
+    margin: 5px;
+}
+
+.section-container
+{
+    padding: 15px 20px 10px 20px;
+}
+
 hr
 {
-    margin-top: 10px;
+    margin-top: 5px;
+    margin-bottom: 10px;
     border-top: 1px solid #ddd;
 }
 
@@ -36,7 +58,7 @@ hr
     transition: all 0.1s linear;
     padding-left: 20px;
     padding-right: 20px;
-    margin: 10px;
+    margin: 5px;
 }
 #sign-out-button:hover
 {

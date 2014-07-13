@@ -32,9 +32,6 @@ document.addEventListener("DOMContentLoaded", function()
         api_scope: 'https://www.googleapis.com/auth/drive.file'
     });
 
-    // automatically update the cache every 15 minutes
-    cacheUpdateTimer = setInterval(updateCache, 1000*60*15);
-
     loadState();
     gdrive.auth({interactive: false}, onAuthenticated);
 });
@@ -176,6 +173,9 @@ function cacheDocs(completed)
 
         if(changesMade)
         {
+            debug_printDocs(cache.documents, 'cache.documents');
+            debug_printDocs(cachingDocuments, 'cachingDocuments');
+
             cache.documents = cachingDocuments;
             cache.lastUpdated = new Date();
         }
@@ -339,4 +339,22 @@ function haveAllDownloaded(docs)
             return false;
     }
     return true;
+}
+
+
+function debug_printDocs(docsList, name)
+{
+    console.log(name + ':');
+
+    if(!docsList || docsList.length == 0)
+    {
+        console.log('- is empty');
+        return;
+    }
+
+    for(var i = 0; i < docsList.length; ++i)
+    {
+        var doc = docsList[i];
+        console.log('- ' + doc.item.title + ' - ' + doc.item.version + ' - ' + doc.item.id);
+    }
 }

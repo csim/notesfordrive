@@ -1,8 +1,8 @@
 {
-  "name": "Notes for Drive",
-  "version": "0.3.3",
+  "name": "Notes for Google Drive",
+  "version": "0.4",
   "manifest_version": 2,
-  "description": "Create notes from within Chrome that are automatically synced as Documents to your Google Drive account",
+  "description": "Easily create notes from within Chrome that are automatically synced as Documents to your Google Drive account.",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
@@ -29,9 +29,6 @@
     "storage",
       "https://www.googleapis.com/",
       "https://accounts.google.com/",
-
-      "https://ssl.gstatic.com/",
-      "http://fonts.googleapis.com/",
-      "https://docs.google.com/"
+      "http://fonts.googleapis.com/"
   ]
 }
