@@ -364,6 +364,12 @@ h1
 }
 
 
+.popover-content
+{
+    width: 200px;
+    height: 60px;
+}
+
 /* Bootstrap Overrides */
 
 .tooltip-inner

@@ -88,6 +88,8 @@ document.addEventListener('DOMContentLoaded', function()
 
     window.setTimeout(function()
     {
+        setupPopover();
+
         checkAuth({interactive:false});
     }, 1);
 });
@@ -133,6 +135,32 @@ function createSummernote()
 
     $('.note-editor').css('border', 'none');
     $('.note-resizebar').css('display', 'none');
+}
+
+function setupPopover()
+{
+    $('#active-note-actions > .trigger').popover(
+    {
+        html: true,
+        content: function() {
+            return $(this).parent().find('.popover-content').html();
+        },
+        container: 'body',
+        placement: 'top'
+    });
+
+    // hide popovers on click outside the popover button
+    $('body').on('click', function(e)
+    {
+        $('[data-toggle="popover"]').each( function()
+        {
+            //the 'is' for buttons that trigger popups
+            //the 'has' for icons within a button that triggers a popup
+            if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
+                $(this).popover('hide');
+            }
+        });
+    });
 }
 
 
