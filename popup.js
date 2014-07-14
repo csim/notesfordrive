@@ -1,13 +1,7 @@
 
 /* TODO
 
- - send new and most recently edited notes to top of list
-
  - put drive and trash items in a popup menu (to streamline UI)
-
- - right click menu for note list items for open in drive and trash options
-
- - add resize handles to bottom-bar
 
  - notes list items scrolling issues
 
@@ -16,6 +10,8 @@
 
 
  THEN
+ - add resize handles to bottom-bar
+
  - offline support 
    - store document cache in chrome local storage - upload when connection available
 
@@ -37,13 +33,6 @@
  - show small image of user last edited by if it was not you and you have not yet seen the changes
 
  - show photos (with name in popover) of users the file is shared with
-
- - resizable window
-
-
- MISC
- - quill icon
-
  */
 
 /*
@@ -55,7 +44,6 @@
     - clicking one one opens it up directly for editing in Drive
     - it simply needs the doc's title, who/when it was last modified by/ (ie. picture) and if there are
       unseen changes (ie. bold it)
-
  */
 
 
