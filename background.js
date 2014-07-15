@@ -33,21 +33,17 @@ document.addEventListener("DOMContentLoaded", function()
     });
 
     loadState();
-    gdrive.auth({interactive: false}, onAuthenticated);
+    gdrive.auth({interactive:false}, onAuthenticated);
 });
 
 
 chrome.runtime.onConnect.addListener(function(port_connected)
 {
-    // when the popup is displayed allow interactive reauthentication on 401's
     if(port_connected.name == 'popup')
     {
-        gdrive.setAllowInteractiveReauth(true);
-
         port_connected.onDisconnect.addListener(function(port_disconnected)
         {
             removeEmptyDocuments();
-            gdrive.setAllowInteractiveReauth(false);
         });
     }
 });
@@ -66,7 +62,13 @@ function loadState()
 
 function onAuthenticated()
 {
-    updateCache();
+    // disallow interactive reauthentication on 401's only during background cache updates
+    gdrive.setAllowInteractiveReauth(false);
+
+    updateCache( function()
+    {
+        gdrive.setAllowInteractiveReauth(true);
+    });
 }
 
 

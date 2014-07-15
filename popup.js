@@ -5,6 +5,7 @@
 
  - notes list items scrolling issues
 
+ Summernote - numbered lists are not offset correctly
  Summernote - links are shit (hack source to disable)
  Summernote - command text in popovers is shit (hack source to disable)
 
@@ -12,7 +13,7 @@
  THEN
  - add resize handles to bottom-bar
 
- - offline support 
+ - offline support
    - store document cache in chrome local storage - upload when connection available
 
  - open existing doc (save opened doc id's to chrome.storage) + right click menu for choosing this "Open from Drive"
@@ -55,7 +56,8 @@ var port = chrome.runtime.connect( {name: 'popup'} );
 
 document.addEventListener('DOMContentLoaded', function()
 {
-    createSummernote();
+    setupPopovers();
+    setupSummernote();
 
     $('#settings-button').click( function()
     {
@@ -76,8 +78,6 @@ document.addEventListener('DOMContentLoaded', function()
 
     window.setTimeout(function()
     {
-        setupPopover();
-
         checkAuth({interactive:false});
     }, 1);
 });
@@ -100,7 +100,7 @@ chrome.runtime.onMessage.addListener( function(request, sender, sendResponse)
 });
 
 
-function createSummernote()
+function setupSummernote()
 {
     $('.summernote').summernote(
       {
@@ -125,7 +125,8 @@ function createSummernote()
     $('.note-resizebar').css('display', 'none');
 }
 
-function setupPopover()
+
+function setupPopovers()
 {
     $('#active-note-actions > .trigger').popover(
     {
@@ -245,7 +246,7 @@ function addDocument(doc)
         setActiveDoc(doc);
     });
 
-    e.text(doc.title);
+    e.append( $("<p>" + doc.title + "</p>") );
 
     $("#notes-list").append( e );
 }
@@ -263,8 +264,8 @@ function setActiveDoc(doc)
     }
 
     // don't do anything if we're already the active doc
-    if($('.summernote').data('editing-doc') == doc)
-        return;
+    if( isActiveDoc(doc) )
+      return;
 
     setLastActiveDocument(doc);
 
@@ -376,7 +377,10 @@ function saveDocument(doc)
     doc.saving = true;
     doc.dirty = false;
 
-    $('#active-note-status').text('Saving..');
+    if( isActiveDoc(doc) )
+    {
+        $('#active-note-status').text('Saving..');
+    }
 
     var completed = function(item_response)
     {
@@ -385,14 +389,14 @@ function saveDocument(doc)
 
         background.cache.lastUpdated = new Date();
 
-        $('#active-note-status').text('All changes saved to Drive');
-
         // update the list item element id (ie. for the case when the doc required insertion and had a guid)
         doc.$notesListElement.attr('id', doc.item.id);
 
-        if( $('.summernote').data('editing-doc') == doc )
+        if( isActiveDoc(doc) )
         {
-            setLastActiveDocument(doc);
+            setLastActiveDocument(doc); // update the last active doc id with the new doc.item.id
+            
+            $('#active-note-status').text('All changes saved to Drive');
         }
 
         // automatically save pending changes once current save has completed
@@ -509,6 +513,11 @@ function focusActiveInput()
 }
 
 
+function isActiveDoc(doc)
+{
+    return $('.summernote').data('editing-doc') == doc;
+}
+
 
 function setLastActiveDocument(doc)
 {
@@ -527,8 +536,11 @@ function updateDocumentTitle(doc)
     if(!title || title.length == 0)
         title = 'Untitled';
 
-    doc.title = title;
-    doc.$notesListElement.text(doc.title);
+    if(title != doc.title)
+    {
+        doc.title = title;
+        doc.$notesListElement.children('p').text(doc.title);
+    }
 }
 
 

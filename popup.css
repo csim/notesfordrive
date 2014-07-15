@@ -138,7 +138,6 @@ h1
 {
     cursor: pointer;
     padding: 10px 8px 10px 8px;
-    color: #494949;
     position: relative;
     border-right: 1px solid #d6d6d6;
 }
@@ -162,6 +161,14 @@ h1
     right: -1px;
     border-right: none;
     overflow: hidden;
+}
+
+.notes-list-item p
+{
+    margin: 0;
+    color: #494949;
+    font-size: 1em;
+    font-family: Helvetica, sans-serif;
 }
 
 
