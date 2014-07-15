@@ -12,8 +12,6 @@ var state = StateEnum.IDLE;
 var gdrive = null;
 var lastActiveDocId = null;
 
-var cacheUpdateTimer = null;
-
 var cache =
 {
     folder: null,
@@ -44,6 +42,7 @@ chrome.runtime.onConnect.addListener(function(port_connected)
         port_connected.onDisconnect.addListener(function(port_disconnected)
         {
             removeEmptyDocuments();
+            storeOrder(cache.documents);
         });
     }
 });
@@ -177,6 +176,8 @@ function cacheDocs(completed)
         {
             debug_printDocs(cache.documents, 'cache.documents');
             debug_printDocs(cachingDocuments, 'cachingDocuments');
+
+            restoreOrder(cachingDocuments);
 
             cache.documents = cachingDocuments;
             cache.lastUpdated = new Date();
@@ -342,6 +343,78 @@ function haveAllDownloaded(docs)
     }
     return true;
 }
+
+
+function storeOrder(docs)
+{
+    if(!docs)
+        return;
+
+    var identifiers = [];
+
+    for(var i = 0; i < docs.length; i++)
+    {
+        var doc = docs[i];
+
+        if(doc.item)
+            identifiers.push(doc.item.id);
+    }
+
+    debug_printDocs(docs, 'storing order');
+
+    chrome.storage.sync.set( {'document-order':identifiers} );
+}
+
+
+function restoreOrder(docs)
+{
+    if(!docs || !docs.length)
+        return;
+
+    debug_printDocs(docs, 'restoreOrder original');
+
+    chrome.storage.sync.get('document-order', function(result)
+    {
+        var identifiers = result['document-order'];
+
+        if(!identifiers || !identifiers.length)
+            return;
+
+        for(var i = 0, to = 0; i < identifiers.length && i < docs.length; i++)
+        {
+            var docId = identifiers[i];
+            var index = indexOfDocumentWithId(docs, docId);
+
+            if(index >= 0)
+            {
+                docs.move(index, to++);
+            }
+        }
+
+        debug_printDocs(docs, 'restoreOrder finished');
+    })
+}
+
+
+function indexOfDocumentWithId(docList, docId)
+{
+    for(var i = 0; i < docList.length; i++)
+    {
+        var doc = docList[i];
+
+        if(doc.item && doc.item.id == docId)
+            return i;
+    }
+
+    return -1;
+}
+
+
+Array.prototype.move = function(from, to)
+{
+    if(from != to)
+        this.splice(to, 0, this.splice(from, 1)[0]);
+};
 
 
 function debug_printDocs(docsList, name)
