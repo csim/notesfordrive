@@ -19,6 +19,7 @@ A Chrome extension to create and save notes as documents to Google Drive.
 - Google Drive REST API
 
 **Authentication**
+
 OAuth2 using a modified version of https://github.com/borismus/oauth2-extensions
 
 The Chrome identity API largely makes the need for directly interacting with the OAuth2 API a thing of the past, however it requires users to be logged into their Chrome browser, which may not be ideal when they have both personal and work credentials. Using the OAuth API directly allows users to be logged into whichever Google Docs account they wish.
