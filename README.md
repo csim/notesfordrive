@@ -15,8 +15,9 @@ A Chrome extension to create and save notes as documents to Google Drive.
 - jquery
 - jquery-ui
 - moment.js
-- bootstrap
+- Bootstrap
 - Google Drive REST API
+- Summernote
 
 **Authentication**
 
