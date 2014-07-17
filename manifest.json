@@ -28,7 +28,6 @@
     "tabs",
     "storage",
       "https://www.googleapis.com/",
-      "https://accounts.google.com/",
-      "http://fonts.googleapis.com/"
+      "https://accounts.google.com/"
   ]
 }

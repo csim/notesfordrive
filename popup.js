@@ -58,6 +58,7 @@ document.addEventListener('DOMContentLoaded', function()
 {
     setupPopovers();
     setupSummernote();
+    setupSortable();
 
     $('#settings-button').click( function()
     {
@@ -149,6 +150,19 @@ function setupPopovers()
                 $(this).popover('hide');
             }
         });
+    });
+}
+
+
+function setupSortable()
+{
+    $("#notes-list").sortable(
+    {
+        stop: function(event, ui)
+        {
+            reorderDocumentCacheForDivs();
+            updateActiveArrow();
+        }
     });
 }
 
@@ -249,6 +263,7 @@ function addDocument(doc)
     e.append( $("<p>" + doc.title + "</p>") );
 
     $("#notes-list").append( e );
+    $("#notes-list").sortable('refresh');
 }
 
 
@@ -287,13 +302,7 @@ function setActiveDoc(doc)
     $('.notes-list-item').removeClass('active');
     $listItem.addClass('active');
 
-
-    // set the correct arrow overlay
-    var isFirst = background.cache.documents[0] == doc;
-    var arrowIcon = isFirst ? "notes-arrow-light-grey.png" : "notes-arrow.png";
-
-    $('.notes-list-item .arrow').remove();
-    $listItem.prepend( $("<img class='arrow' src='img/" + arrowIcon + "'/>") );
+    updateActiveArrow();
 
 
     // reconfigure the buttons
@@ -395,7 +404,7 @@ function saveDocument(doc)
         if( isActiveDoc(doc) )
         {
             setLastActiveDocument(doc); // update the last active doc id with the new doc.item.id
-            
+
             $('#active-note-status').text('All changes saved to Drive');
         }
 
@@ -412,6 +421,22 @@ function saveDocument(doc)
     else
     {
         background.gdrive.overwriteAsHTML(doc.item.id, doc.title, doc.contentHTML, completed);
+    }
+}
+
+
+function updateActiveArrow()
+{
+    $('.notes-list-item .arrow').remove();
+
+    var activeDoc = $('.summernote').data('editing-doc');
+
+    if(activeDoc)
+    {
+        var isFirst = background.cache.documents[0] == activeDoc;
+        var arrowIcon = isFirst ? "notes-arrow-light-grey.png" : "notes-arrow.png";
+
+        activeDoc.$notesListElement.prepend( $("<img class='arrow' src='img/" + arrowIcon + "'/>") );
     }
 }
 
@@ -673,4 +698,23 @@ function stripTag(tag, from)
 function arrayContains(needle, arrhaystack)
 {
     return (arrhaystack.indexOf(needle) > -1);
+}
+
+
+function reorderDocumentCacheForDivs()
+{
+    var reordered = [];
+
+    $('#notes-list').children().each( function()
+    {
+        var doc = $(this).data('doc');
+
+        if(doc)
+            reordered.push(doc);
+    });
+
+    if(reordered.length == background.cache.documents.length)
+    {
+        background.cache.documents = reordered;
+    }
 }
