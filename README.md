@@ -3,6 +3,8 @@ Notes for Google Drive
 
 A Chrome extension to create and save notes as documents to Google Drive.
 
+[View on the Chrome Webstore](https://chrome.google.com/webstore/detail/notes-for-google-drive/ndidogegapfaolpcebadjknkdlladffa)
+
 **Features**
 - Clean and modern UI
 - Documents are loaded when the extension starts and are always immediately available
