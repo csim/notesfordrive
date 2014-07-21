@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f6542965-b92e-44f4-a409-eeae7a80e20f" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/background.js" afterPath="$PROJECT_DIR$/background.js" />
-    </list>
+    <list default="true" id="f6542965-b92e-44f4-a409-eeae7a80e20f" name="Default" comment="" />
     <ignored path="Notes for Drive.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="TRACKING_ENABLED" value="true" />
