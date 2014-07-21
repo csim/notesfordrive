@@ -52,6 +52,7 @@ h1
     bottom: 0;
     background-color: #f4f4f4;
     border-top: 1px solid #d6d6d6;
+    z-index: 20;
 }
 
 #content
@@ -177,7 +178,7 @@ h1
     width: 30%;
     height: 100%;
     float: left;
-    overflow-y: hidden;
+    overflow-y: scroll;
 }
 
 
@@ -373,9 +374,40 @@ h1
 
 .popover-content
 {
-    width: 200px;
+    margin: 0;
+    padding: 0;
+    width: 160px;
     height: 60px;
 }
+
+.popover-content ul
+{
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+.popover-content ul li
+{
+    color: #333333;
+    height: 30px;
+    padding: 5px 10px 5px 10px;
+}
+.popover-content ul li:hover
+{
+    cursor: pointer;
+    color: white;
+    background-color: #52A8FF;
+}
+.popover-content ul li:first-child:hover
+{
+    border-radius: 5px 5px 0px 0px;
+}
+.popover-content ul li:last-child:hover
+{
+    border-radius: 0px 0px 5px 5px;
+}
+
 
 /* Bootstrap Overrides */
 

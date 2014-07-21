@@ -446,6 +446,7 @@ OAuth2.prototype.authorize = function(options, callback_success, callback_failur
                         that.printAccessTokenData();
                         */
 
+
                         // Callback when we finish refreshing
                         if (callback_success) {
                             callback_success();
@@ -482,6 +483,7 @@ OAuth2.prototype.authorize = function(options, callback_success, callback_failur
     });
 };
 
+/*
 OAuth2.prototype.printAccessTokenData = function() {
   var data = this.get();
 
@@ -491,7 +493,7 @@ OAuth2.prototype.printAccessTokenData = function() {
   var timestamp_exp_at = new Date( data.accessTokenDate + data.expiresIn * 1000 );
   var timestamp_exp_in = (data.expiresIn - (new Date().valueOf() - data.accessTokenDate)/1000 ) / 60;
   console.log('token expires at ' + timestamp_exp_at.toUTCString() + ' in ' + timestamp_exp_in + ' minutes');
-}
+}*/
 
 /**
  * @returns A valid access token.

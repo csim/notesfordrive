@@ -78,8 +78,6 @@ function updateCache(completed)
 
     state = StateEnum.CACHING;
 
-    console.log('updating cache..');
-
     var completed_wrapper = function(changesMade)
     {
         cache.lastChecked = new Date();
@@ -87,18 +85,13 @@ function updateCache(completed)
 
         if(changesMade)
         {
-            console.log('updateCache completed_wrapper changes made');
             chrome.runtime.sendMessage({'cacheUpdated': cache.lastUpdated});
         }
         else
         {
-            console.log('updateCache completed_wrapper no changes');
-
             // edge case for when folder created during a different session or on a different machine
             if(!cache.lastUpdated)
             {
-                console.log('updateCache completed_wrapper initialCacheUpdateComplete');
-
                 chrome.runtime.sendMessage({'initialCacheUpdateComplete': true});
             }
         }
@@ -174,9 +167,6 @@ function cacheDocs(completed)
 
         if(changesMade)
         {
-            debug_printDocs(cache.documents, 'cache.documents');
-            debug_printDocs(cachingDocuments, 'cachingDocuments');
-
             restoreOrder(cachingDocuments);
 
             cache.documents = cachingDocuments;
@@ -360,8 +350,6 @@ function storeOrder(docs)
             identifiers.push(doc.item.id);
     }
 
-    debug_printDocs(docs, 'storing order');
-
     chrome.storage.sync.set( {'document-order':identifiers} );
 }
 
@@ -370,8 +358,6 @@ function restoreOrder(docs)
 {
     if(!docs || !docs.length)
         return;
-
-    debug_printDocs(docs, 'restoreOrder original');
 
     chrome.storage.sync.get('document-order', function(result)
     {
@@ -390,8 +376,6 @@ function restoreOrder(docs)
                 docs.move(index, to++);
             }
         }
-
-        debug_printDocs(docs, 'restoreOrder finished');
     })
 }
 

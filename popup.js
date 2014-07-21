@@ -1,10 +1,6 @@
 
 /* TODO
 
- - put drive and trash items in a popup menu (to streamline UI)
-
- - notes list items scrolling issues
-
  Summernote - numbered lists are not offset correctly
  Summernote - links are shit (hack source to disable)
  Summernote - command text in popovers is shit (hack source to disable)
@@ -129,7 +125,9 @@ function setupSummernote()
 
 function setupPopovers()
 {
-    $('#active-note-actions > .trigger').popover(
+    var $popoverSelector = $('#active-note-actions > .trigger');
+
+    $popoverSelector.popover(
     {
         html: true,
         content: function() {
@@ -150,6 +148,26 @@ function setupPopovers()
                 $(this).popover('hide');
             }
         });
+    });
+
+    $(document).on("click", "#active-item-trash", function()
+    {
+        var activeDoc = $('.summernote').data('editing-doc');
+
+        if(activeDoc)
+            trashDocument(activeDoc);
+
+        $popoverSelector.popover('hide');
+    });
+
+    $(document).on("click", "#active-item-drive", function()
+    {
+        var activeDoc = $('.summernote').data('editing-doc');
+
+        if(activeDoc && activeDoc.item)
+            chrome.tabs.create({ url: activeDoc.item.alternateLink });
+
+        $popoverSelector.popover('hide');
     });
 }
 
@@ -196,7 +214,7 @@ function checkAuth(options)
     }
     else
     {
-        background.gdrive.oauth.printAccessTokenData();
+        //background.gdrive.oauth.printAccessTokenData();
 
         // we have an access token - even if its expired it will be automatically refreshed on the next server call
         authenticationSucceeded();
@@ -264,6 +282,8 @@ function addDocument(doc)
 
     $("#notes-list").append( e );
     $("#notes-list").sortable('refresh');
+
+    recalculateSpacerHeight();
 }
 
 
@@ -303,27 +323,6 @@ function setActiveDoc(doc)
     $listItem.addClass('active');
 
     updateActiveArrow();
-
-
-    // reconfigure the buttons
-    $('#trash-button').tooltip('destroy');
-    $('#edit-in-drive-button').tooltip('destroy');
-
-    $('#trash-button').unbind().click( function()
-    {
-        trashDocument(doc);
-    });
-
-    $("#edit-in-drive-button").unbind().click( function()
-    {
-        if(doc.item)
-            chrome.tabs.create({ url: doc.item.alternateLink });
-    });
-
-    $('#trash-button').tooltip();
-    $('#edit-in-drive-button').tooltip();
-
-
     updateDisplay();
 }
 
@@ -334,6 +333,7 @@ function trashDocument(doc)
         background.gdrive.trashFile(doc.item.id);
 
     doc.$notesListElement.remove();
+    recalculateSpacerHeight();
 
     var documents = background.cache.documents;
 
@@ -718,3 +718,29 @@ function reorderDocumentCacheForDivs()
         background.cache.documents = reordered;
     }
 }
+
+function recalculateSpacerHeight()
+{
+    var listHeight = $('#notes-list').height();
+    var containerHeight = $('#documents-section').height();
+
+    var height = containerHeight - listHeight;
+
+    if(height < 0)
+    {
+        height = 0;
+        $('#notes-list-container').css('overflow-y', 'scroll');
+    }
+    else
+    {
+        $('#notes-list-container').css('overflow-y', 'hidden');
+    }
+
+    console.log('recalc, container:' + containerHeight + ", list:" + listHeight + ", height:" + height);
+
+    $('#notes-list-space').css('height', (height)+'px');
+}
+
+jQuery.fn.cssFloat = function(prop) {
+    return parseFloat(this.css(prop)) || 0;
+};
