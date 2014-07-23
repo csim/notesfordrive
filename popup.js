@@ -1,6 +1,13 @@
 
 /* TODO
 
+    - Misc bugs
+           - move saving to background.js
+           - sometimes title becomes untitled
+           - wordwrap messes with lines
+           - saving and loading messes with document formatting slightly
+           - indenting and paragraphs can get a little messy
+           
  Summernote - numbered lists are not offset correctly
  Summernote - links are shit (hack source to disable)
  Summernote - command text in popovers is shit (hack source to disable)
@@ -101,10 +108,10 @@ function setupSummernote()
 {
     $('.summernote').summernote(
       {
-          height: 325,
+          height: 375,
 
-          minHeight: 325,  // set minimum height of editor
-          maxHeight: 325,  // set maximum height of editor
+          minHeight: 375,  // set minimum height of editor
+          maxHeight: 375,  // set maximum height of editor
 
           focus: false,
 
