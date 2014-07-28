@@ -11,6 +11,7 @@ var state = StateEnum.IDLE;
 
 var gdrive = null;
 var lastActiveDocId = null;
+var cacheUpdateTimer = null;
 
 var cache =
 {
@@ -32,15 +33,23 @@ document.addEventListener("DOMContentLoaded", function()
 
     loadState();
     gdrive.auth({interactive:false}, onAuthenticated);
+
+    // automatically update the cache every 10 minutes
+    cacheUpdateTimer = setInterval(updateCache, 1000*60*10);
 });
 
 
 chrome.runtime.onConnect.addListener(function(port_connected)
 {
+    // disallow interactive reauthentication on 401's only during background cache updates
     if(port_connected.name == 'popup')
     {
+        gdrive.setAllowInteractiveReauth(true);
+
         port_connected.onDisconnect.addListener(function(port_disconnected)
         {
+            gdrive.setAllowInteractiveReauth(false);
+
             removeEmptyDocuments();
             storeOrder(cache.documents);
         });
@@ -61,13 +70,7 @@ function loadState()
 
 function onAuthenticated()
 {
-    // disallow interactive reauthentication on 401's only during background cache updates
-    gdrive.setAllowInteractiveReauth(false);
-
-    updateCache( function()
-    {
-        gdrive.setAllowInteractiveReauth(true);
-    });
+    updateCache();
 }
 
 
