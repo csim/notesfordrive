@@ -212,6 +212,7 @@ function cacheDocs(completed)
                     var doc = cachingDocuments[index];
                     doc.item = item;
                     doc.title = item.title;
+                    doc.cursorPos = item.cursorPos;
 
                     var cachedDoc = matchDocumentById(doc.item.id, cache.documents);
                     var requiresDownload = true;
@@ -418,5 +419,46 @@ function debug_printDocs(docsList, name)
     {
         var doc = docsList[i];
         console.log('- ' + doc.item.title + ' - ' + doc.item.version + ' - ' + doc.item.id);
+    }
+}
+
+
+function saveDocument(doc, callback_started, callback_completed)
+{
+    if(!doc || !doc.dirty || doc.saving)
+        return;
+
+    doc.saving = true;
+    doc.dirty = false;
+
+    if(callback_started)
+        callback_started();
+
+    var success = function(item_response)
+    {
+        doc.item = item_response;
+        doc.saving = false;
+
+        cache.lastUpdated = new Date();
+
+        // update the list item element id (ie. for the case when the doc required insertion and had a guid)
+        doc.$notesListElement.attr('id', doc.item.id);
+
+        if(callback_completed)
+            callback_completed();
+
+        // automatically save pending changes once current save has completed
+        if(doc.dirty)
+            saveDocument(doc);
+    };
+
+    if(doc.requiresInsert)
+    {
+        doc.requiresInsert = false;
+        gdrive.insertAsHTML(background.cache.folder.id, doc.title, doc.contentHTML, success);
+    }
+    else
+    {
+        gdrive.overwriteAsHTML(doc.item.id, doc.title, doc.contentHTML, success);
     }
 }

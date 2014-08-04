@@ -2,12 +2,12 @@
 /* TODO
 
     - Misc bugs
-           - move saving to background.js
            - sometimes title becomes untitled
            - wordwrap messes with lines
            - saving and loading messes with document formatting slightly
            - indenting and paragraphs can get a little messy
-           
+           - remember cursor position per document
+
  Summernote - numbered lists are not offset correctly
  Summernote - links are shit (hack source to disable)
  Summernote - command text in popovers is shit (hack source to disable)
@@ -122,6 +122,7 @@ function setupSummernote()
               ['para', ['ul', 'ol']]
           ],
 
+          onfocus: onDocumentFocus,
           onChange: onDocumentChange
       });
 
@@ -192,6 +193,17 @@ function setupSortable()
 }
 
 
+function onDocumentFocus(e)
+{
+    var doc = $('.summernote').data('editing-doc');
+
+    if(doc)
+    {
+        doc.cursorPos = document.getSelection().anchorOffset;
+        console.log("onDocumentFocus doc.cursorPos = " + doc.cursorPos);
+    }
+}
+
 function onDocumentChange(contents, $editable)
 {
     var doc = $('.summernote').data('editing-doc');
@@ -199,10 +211,13 @@ function onDocumentChange(contents, $editable)
     if(doc)
     {
         doc.dirty = true;
+        doc.cursorPos = document.getSelection().anchorOffset;
         doc.contentHTML = $('.summernote').code();
 
         updateDocumentTitle(doc);
         saveDocument(doc);
+
+        console.log("doc.cursorPos = " + doc.cursorPos);
     }
 }
 
@@ -390,45 +405,28 @@ function saveDocument(doc)
     if(!doc || !doc.dirty || doc.saving)
         return;
 
-    doc.saving = true;
-    doc.dirty = false;
-
-    if( isActiveDoc(doc) )
+    var started = function()
     {
-        $('#active-note-status').text('Saving..');
-    }
-
-    var completed = function(item_response)
-    {
-        doc.item = item_response;
-        doc.saving = false;
-
-        background.cache.lastUpdated = new Date();
-
-        // update the list item element id (ie. for the case when the doc required insertion and had a guid)
-        doc.$notesListElement.attr('id', doc.item.id);
-
         if( isActiveDoc(doc) )
         {
-            setLastActiveDocument(doc); // update the last active doc id with the new doc.item.id
+            $('#active-note-status').text('Saving..');
+        }
+    }
+
+    var completed = function()
+    {
+        if( isActiveDoc(doc) )
+        {
+            // update the last active doc id with the new doc.item.id (for newly inserted docs)
+            setLastActiveDocument(doc);
 
             $('#active-note-status').text('All changes saved to Drive');
         }
-
-        // automatically save pending changes once current save has completed
-        if(doc.dirty)
-            saveDocument(doc);
     };
 
-    if(doc.requiresInsert)
-    {
-        doc.requiresInsert = false;
-        background.gdrive.insertAsHTML(background.cache.folder.id, doc.title, doc.contentHTML, completed);
-    }
-    else
-    {
-        background.gdrive.overwriteAsHTML(doc.item.id, doc.title, doc.contentHTML, completed);
-    }
+    // we do a save on the background thread so that it will continue to save
+    // outstanding changes even if the popup is closed
+    background.saveDocument(doc, started, completed);
 }
 
 
@@ -536,11 +534,10 @@ function focusActiveInput()
 
     if(activeDoc)
     {
-        // only set the focus in the text area when there is empty content
-        if(activeDoc.contentHTML == null || activeDoc.contentHTML.length == 0)
-        {
-            $('.summernote').summernote({focus:true});
-        }
+        $('.summernote').summernote({focus:true});
+
+        if(activeDoc.cursorPos)
+            document.getSelection().anchorOffset = activeDoc.cursorPos;
     }
 }
 

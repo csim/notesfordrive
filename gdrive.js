@@ -361,52 +361,18 @@ GDrive.prototype.insertAsHTML = function(parentId, title, utf8content, success_c
     this.uploadUTF8(details, utf8content, success_callback, error_callback);
 }
 
-
-
 GDrive.prototype.upload = function(method, url, opt_data, opt_headers, success_callback, error_callback)
 {
-    //console.log(url);
-
-    var data = opt_data || null;
-    var headers = opt_headers || {};
-
-    var xhr = new XMLHttpRequest();
-    xhr.open(method, url, true);
-
-    xhr.setRequestHeader('Authorization', 'Bearer ' + this.googleAuth.getAccessToken() );
-
-    for(var key in headers)
-        xhr.setRequestHeader(key, headers[key]);
-
-    xhr.onload = function(e)
+    var config =
     {
-        //console.log(xhr.response);
-
-        if(this.status == 200)
-        {
-            var response = JSON.parse(xhr.responseText);
-
-            if(success_callback)
-                success_callback(response, xhr);
-        }
-        else
-        {
-            console.log(xhr, xhr.getAllResponseHeaders());
-
-            if(error_callback)
-                error_callback(xhr);
-        }
+        method: method,
+        url: url,
+        data: opt_data,
+        headers: opt_headers,
+        allowInteractiveReauth: this.allowInteractiveReauth
     };
 
-    xhr.onerror = function(e)
-    {
-        console.log(xhr, xhr.getAllResponseHeaders());
-
-        if(error_callback)
-            error_callback(xhr);
-    };
-
-    xhr.send(data);
+    this.authenticatedRequest(config, success_callback, error_callback);
 }
 
 GDrive.prototype.uploadUTF8 = function(details, utf8content, success_callback, error_callback)
