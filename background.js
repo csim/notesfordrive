@@ -35,7 +35,13 @@ document.addEventListener("DOMContentLoaded", function()
     gdrive.auth({interactive:false}, onAuthenticated);
 
     // automatically update the cache every 10 minutes
-    cacheUpdateTimer = setInterval(updateCache, 1000*60*10);
+    var updateCacheFn = function()
+    {
+        if(gdrive.oauth.hasAccessToken())
+            updateCache();
+    };
+
+    cacheUpdateTimer = setInterval(updateCacheFn, 1000*60*10);
 });
 
 
@@ -425,6 +431,9 @@ function debug_printDocs(docsList, name)
 
 function saveDocument(doc, callback_started, callback_completed)
 {
+    console.log("saveDocument_forReals: ");
+    console.log(doc);
+
     if(!doc || !doc.dirty || doc.saving)
         return;
 
@@ -436,6 +445,8 @@ function saveDocument(doc, callback_started, callback_completed)
 
     var success = function(item_response)
     {
+        console.log("saveDocument_forReals success");
+
         doc.item = item_response;
         doc.saving = false;
 
@@ -455,7 +466,7 @@ function saveDocument(doc, callback_started, callback_completed)
     if(doc.requiresInsert)
     {
         doc.requiresInsert = false;
-        gdrive.insertAsHTML(background.cache.folder.id, doc.title, doc.contentHTML, success);
+        gdrive.insertAsHTML(cache.folder.id, doc.title, doc.contentHTML, success);
     }
     else
     {

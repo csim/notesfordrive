@@ -84,7 +84,7 @@ GDrive.prototype.revokeAuthToken = function(opt_callback)
 
 GDrive.prototype.authenticatedRequest = function(config, success_callback, error_callback, opt_has_retried)
 {
-    //console.log(config.method + ' ' + config.url);
+    console.log(config.method + ' ' + config.url);
 
     var data = config.data || null;
     var headers = config.headers || {};
@@ -104,7 +104,7 @@ GDrive.prototype.authenticatedRequest = function(config, success_callback, error
         {
             var authentication_succeeded = function()
             {
-                //console.log('retry_handler authentication_succeeded');
+                console.log('retry_handler authentication_succeeded');
 
                 this.authenticatedRequest(config, success_callback, error_callback, true);
 
@@ -112,14 +112,14 @@ GDrive.prototype.authenticatedRequest = function(config, success_callback, error
 
             var authentication_failed = function()
             {
-                //console.log('retry_handler authentication_failed');
+                console.log('retry_handler authentication_failed');
 
                 // second attempt - clear the access token and start from scratch
                 this.googleAuth.clearAccessToken();
 
                 this.auth({interactive:config.allowInteractiveReauth}, authentication_succeeded, function()
                 {
-                    //console.log('retry_handler authentication_failed failed-again, revoking');
+                    console.log('retry_handler authentication_failed failed-again, revoking');
 
                     // no dice - could be a token issue - revoke it and start from scratch
                     this.revokeAccessToken( function()
@@ -146,7 +146,7 @@ GDrive.prototype.authenticatedRequest = function(config, success_callback, error
 
     xhr.onload = function(e)
     {
-        //console.log(xhr.response);
+        console.log(xhr.response);
 
         if(xhr.status == 200)
         {
@@ -155,7 +155,7 @@ GDrive.prototype.authenticatedRequest = function(config, success_callback, error
         }
         else if(xhr.status == 401 || xhr.status == 403)
         {
-            //console.log( xhr, xhr.getAllResponseHeaders() );
+            console.log( xhr, xhr.getAllResponseHeaders() );
 
             retry_handler(xhr);
         }
@@ -170,9 +170,9 @@ GDrive.prototype.authenticatedRequest = function(config, success_callback, error
 
     xhr.onerror = function(e)
     {
-        //console.log('On Error:');
-        //console.log( xhr );
-        //console.log( e );
+        console.log('On Error:');
+        console.log( xhr );
+        console.log( e );
 
         if(error_handler)
             error_handler(xhr);
@@ -184,7 +184,7 @@ GDrive.prototype.authenticatedRequest = function(config, success_callback, error
 
 GDrive.prototype.download = function(url, success_callback, error_callback)
 {
-    //console.log(url);
+    console.log(url);
 
     var succeeded = function(xhr)
     {
@@ -337,6 +337,8 @@ GDrive.prototype.createFolder = function(title, parentId, success_callback, erro
 
 GDrive.prototype.overwriteAsHTML = function(fileId, title, utf8content, success_callback, error_callback)
 {
+    console.log("overwriteAsHTML fileId=" + fileId);
+
     var details =
     {
         insert: false,
@@ -350,6 +352,8 @@ GDrive.prototype.overwriteAsHTML = function(fileId, title, utf8content, success_
 
 GDrive.prototype.insertAsHTML = function(parentId, title, utf8content, success_callback, error_callback)
 {
+    console.log("insertAsHTML");
+
     var details =
     {
         insert: true,
@@ -363,6 +367,8 @@ GDrive.prototype.insertAsHTML = function(parentId, title, utf8content, success_c
 
 GDrive.prototype.upload = function(method, url, opt_data, opt_headers, success_callback, error_callback)
 {
+    console.log("upload");
+
     var config =
     {
         method: method,
@@ -372,11 +378,21 @@ GDrive.prototype.upload = function(method, url, opt_data, opt_headers, success_c
         allowInteractiveReauth: this.allowInteractiveReauth
     };
 
-    this.authenticatedRequest(config, success_callback, error_callback);
+    var success_wrapper = function(xhr)
+    {
+        var item = JSON.parse(xhr.responseText);
+
+        if(success_callback)
+            success_callback(item);
+    };
+
+    this.authenticatedRequest(config, success_wrapper, error_callback);
 }
 
 GDrive.prototype.uploadUTF8 = function(details, utf8content, success_callback, error_callback)
 {
+    console.log("uploadUTF8");
+
     const boundary = '-------314159265358979323846';
     const delimiter = "\r\n--" + boundary + "\r\n";
     const close_delim = "\r\n--" + boundary + "--";
