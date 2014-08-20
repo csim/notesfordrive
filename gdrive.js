@@ -150,6 +150,8 @@ GDrive.prototype.authenticatedRequest = function(config, success_callback, error
 
         if(xhr.status == 200)
         {
+            console.log( xhr.responseText );
+
             if(success_callback)
                 success_callback(xhr);
         }

@@ -460,7 +460,7 @@ function saveDocument(doc, callback_started, callback_completed)
 
         // automatically save pending changes once current save has completed
         if(doc.dirty)
-            saveDocument(doc);
+            saveDocument(doc, callback_started, callback_completed);
     };
 
     if(doc.requiresInsert)

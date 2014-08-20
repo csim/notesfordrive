@@ -1,0 +1,18 @@
+
+.editor
+{
+    border: 1px solid #d6d6d6;
+    margin: 20px;
+    padding: 10px;
+    height: 200px;
+}
+
+.editor hr
+{
+    color: #dcdcdc;
+    background-color: #dcdcdc;
+    height: 1px;
+    border: 0;
+}
+
+[contenteditable]:focus { outline: 0px solid transparent; }
