@@ -3,9 +3,9 @@
 
 
 *cleanup google docs html*
+    - strip html/head/meta/body elements
     - strip all css elements from style except those starting with .c
     - within those strip all except font-weight, font-style and color
-    - strip html/head/meta/body elements
     - replace <p> with <div>
     - eventually replace all elements that use c* classes with margin-left:36 with <blockqoute> (ie. surround the element)
 
