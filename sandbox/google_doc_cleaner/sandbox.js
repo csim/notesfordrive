@@ -260,10 +260,28 @@ document.addEventListener('DOMContentLoaded', function()
 });
 
 
+
+
+if (typeof String.prototype.startsWith != 'function') {
+  String.prototype.startsWith = function (str){
+    return this.slice(0, str.length) == str;
+  };
+}
+
+
 function cleanGoogleDocHTML(html)
 {
+  // steps required:
+  // - isolate style and body element content and strip everything else - DONE
+  // - replace <p> with <div> - DONE
+  // - strip all css elements from style except those starting with .c - DONE
+  // - strip css of all but selectors starting with .c and within those strip all properties
+  //   except font-weight, font-style and color
+  // - eventually replace all elements that use c* classes with margin-left:36 with <blockqoute> (ie. surround the element)
+
   var bodyContent = contentOfFirstTag('body', html);
   var styleContent = contentOfFirstTag('style', html);
+
 
   bodyContent = bodyContent
        .replace(/<p/g, '<div')
@@ -280,15 +298,37 @@ function cleanGoogleDocHTML(html)
     {
         if(c.length > 0 && c.indexOf('c') !== 0)
         {
-            console.log('removing ' + c);
-
             $elem.removeClass(c);
         }
-    })
+    });
   });
 
-  return $content.html();
+
+  var cssParser = new SimpleCSSParser(styleContent);
+
+  cssParser.ruleSets = cssParser.ruleSets.filter( function(ruleSet)
+  {
+      return ruleSet.selector.startsWith(".c");
+  });
+
+
+  var allowProperites = ["color", "font-style", "font-weight"];
+
+  cssParser.ruleSet.forEach( function(ruleSet)
+  {
+      ruleSet.declarations = ruleSet.declarations.filter( function(decl)
+      {
+          return allowProperites.indexOf( decl.property ) > -1;
+      })
+  });
+
+
+  return {
+    css: cssParser.css();
+    html: $content.html()
+  };
 }
+
 
 function contentOfFirstTag(tag, text, startFromIndex)
 {

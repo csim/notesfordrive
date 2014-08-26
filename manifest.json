@@ -13,8 +13,9 @@
   "background": {
     "scripts": [
       "oauth2/oauth2.js",
-      "gdrive.js",
-      "background.js"
+      "src/app/utils.js",
+      "src/app/gdrive.js",
+      "src/app/background.js"
     ],
     "persistent": true
   },
@@ -22,7 +23,7 @@
   "browser_action": {
     "default_icon": "icons/icon19.png",
     "default_title": "Notes",
-    "default_popup": "popup.html"
+    "default_popup": "src/app/popup.html"
   },
   "permissions": [
     "tabs",
