@@ -135,7 +135,7 @@ function setupSummernote()
               ['para', ['ul', 'ol']]
           ],
 
-          onfocus: onDocumentFocus,
+          //onfocus: onDocumentFocus,
           onChange: onDocumentChange
       });
 
@@ -224,7 +224,7 @@ function onDocumentChange(contents, $editable)
     if(doc)
     {
         doc.dirty = true;
-        doc.cursorPos = document.getSelection().anchorOffset;
+        //doc.cursorPos = document.getSelection().anchorOffset;
         doc.contentHTML = $('.summernote').code();
 
         updateDocumentTitle(doc);
@@ -539,19 +539,28 @@ function updateDisplay()
 
 function focusActiveInput()
 {
-    /*
     var activeDoc = $('.summernote').data('editing-doc');
+
 
     if(activeDoc)
     {
+        // only set the focus in the text area when there is empty content
+        if(activeDoc.contentHTML == null || activeDoc.contentHTML.length == 0)
+        {
+            $('.summernote').summernote({focus:true});
+        }
+        else
+        {
+            // force summernote to un-focus text input
+            $('.note-editable').blur();
+        }
+
+        /*
         $('.summernote').summernote({focus:true});
 
         if(activeDoc.cursorPos)
-            document.getSelection().anchorOffset = activeDoc.cursorPos;
+            document.getSelection().anchorOffset = activeDoc.cursorPos;*/
     }
-    */
-
-    $('.summernote').blur();
 }
 
 

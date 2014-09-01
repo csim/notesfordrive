@@ -114,7 +114,9 @@ function updateCache(completed)
         getFolder(DEFAULT_FOLDER_NAME, function(folder)
         {
             cache.folder = folder;
-            cacheDocs(completed_wrapper);
+            cacheDocs( function() {
+                completed_wrapper(true); // first time opening (or creating) folder this session - force changesMade=true
+            });
         });
     }
     else
