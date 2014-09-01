@@ -236,7 +236,9 @@ function cacheDocs(completed)
                     {
                         gdrive.download(item.exportLinks['text/html'], function(responseData)
                         {
-                            doc.contentHTML = responseData;
+                            var cleaned = cleanGoogleDocHTML(responseData);
+
+                            doc.contentHTML = "<style type=\"text/css\" scoped>" + cleaned.css + "</style>" + cleaned.html;
                             doc.hasDownloaded = true;
 
                             checkComplete();
@@ -471,5 +473,58 @@ function saveDocument(doc, callback_started, callback_completed)
     else
     {
         gdrive.overwriteAsHTML(doc.item.id, doc.title, doc.contentHTML, success);
+    }
+}
+
+
+function cleanGoogleDocHTML(html)
+{
+    var bodyContent = contentOfFirstTag('body', html);
+    var styleContent = contentOfFirstTag('style', html);
+
+
+    bodyContent = bodyContent
+        .replace(/<p/g, '<div')
+        .replace(/<\/p>/g, '</div>');
+
+    var $content = $('<div>' + bodyContent + '</div>');
+
+    $content.find('*').each(function()
+    {
+        var $elem = $(this);
+        var classes = this.className.split(/\s+/);
+
+        $.each(classes, function(i, c)
+        {
+            if(c.length > 0 && c.indexOf('c') !== 0)
+            {
+                $elem.removeClass(c);
+            }
+        });
+    });
+
+
+    var cssParser = new IceburgCSS(styleContent);
+
+    cssParser.ruleSets = cssParser.ruleSets.filter( function(ruleSet)
+    {
+        return ruleSet.selector.startsWith(".c");
+    });
+
+
+    var allowProperties = ["color", "font-style", "font-weight"];
+
+    cssParser.ruleSets.forEach( function(ruleSet)
+    {
+        ruleSet.declarations = ruleSet.declarations.filter( function(decl)
+        {
+            return allowProperties.indexOf( decl.property ) > -1;
+        })
+    });
+
+
+    return {
+        css: cssParser.cssText(),
+        html: $content.html()
     }
 }

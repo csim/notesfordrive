@@ -1,5 +1,5 @@
 
-function GDrive(selector)
+function GDrive()
 {
     this.googleAuth = null;
     this.allowInteractiveReauth = false;

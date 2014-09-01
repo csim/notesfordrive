@@ -12,6 +12,8 @@
   "default_locale": "en",
   "background": {
     "scripts": [
+      "lib/iceburg-css.js",
+      "lib/jquery.min.js",
       "oauth2/oauth2.js",
       "src/app/utils.js",
       "src/app/gdrive.js",

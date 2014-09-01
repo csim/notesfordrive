@@ -256,92 +256,67 @@ document.addEventListener('DOMContentLoaded', function()
 {
     var cleaned = cleanGoogleDocHTML(googleDocHTML);
 
-    console.log(cleaned);
+    console.log(cleaned.css);
+    console.log(cleaned.html);
 });
-
-
-
-
-if (typeof String.prototype.startsWith != 'function') {
-  String.prototype.startsWith = function (str){
-    return this.slice(0, str.length) == str;
-  };
-}
 
 
 function cleanGoogleDocHTML(html)
 {
-  // steps required:
-  // - isolate style and body element content and strip everything else - DONE
-  // - replace <p> with <div> - DONE
-  // - strip all css elements from style except those starting with .c - DONE
-  // - strip css of all but selectors starting with .c and within those strip all properties
-  //   except font-weight, font-style and color
-  // - eventually replace all elements that use c* classes with margin-left:36 with <blockqoute> (ie. surround the element)
+    // steps required:
+    // - isolate style and body element content and strip everything else - DONE
+    // - replace <p> with <div> - DONE
+    // - strip all css elements from style except those starting with .c - DONE
+    // - strip css of all but selectors starting with .c and within those strip all properties
+    //   except font-weight, font-style and color
+    // - eventually replace all elements that use c* classes with margin-left:36 with <blockqoute> (ie. surround the element)
 
-  var bodyContent = contentOfFirstTag('body', html);
-  var styleContent = contentOfFirstTag('style', html);
+    var bodyContent = contentOfFirstTag('body', html);
+    var styleContent = contentOfFirstTag('style', html);
 
 
-  bodyContent = bodyContent
-       .replace(/<p/g, '<div')
-       .replace(/<\/p>/g, '</div>');
+    bodyContent = bodyContent
+        .replace(/<p/g, '<div')
+        .replace(/<\/p>/g, '</div>');
 
-  var $content = $('<div>' + bodyContent + '</div>');
+    var $content = $('<div>' + bodyContent + '</div>');
 
-  $content.find('*').each(function()
-  {
-    var $elem = $(this);
-    var classes = this.className.split(/\s+/);
-
-    $.each(classes, function(i, c)
+    $content.find('*').each(function()
     {
-        if(c.length > 0 && c.indexOf('c') !== 0)
+        var $elem = $(this);
+        var classes = this.className.split(/\s+/);
+
+        $.each(classes, function(i, c)
         {
-            $elem.removeClass(c);
-        }
+            if(c.length > 0 && c.indexOf('c') !== 0)
+            {
+                $elem.removeClass(c);
+            }
+        });
     });
-  });
 
 
-  var cssParser = new SimpleCSSParser(styleContent);
+    var cssParser = new IceburgCSS(styleContent);
 
-  cssParser.ruleSets = cssParser.ruleSets.filter( function(ruleSet)
-  {
-      return ruleSet.selector.startsWith(".c");
-  });
-
-
-  var allowProperites = ["color", "font-style", "font-weight"];
-
-  cssParser.ruleSet.forEach( function(ruleSet)
-  {
-      ruleSet.declarations = ruleSet.declarations.filter( function(decl)
-      {
-          return allowProperites.indexOf( decl.property ) > -1;
-      })
-  });
+    cssParser.ruleSets = cssParser.ruleSets.filter( function(ruleSet)
+    {
+        return ruleSet.selector.startsWith(".c");
+    });
 
 
-  return {
-    css: cssParser.css();
-    html: $content.html()
-  };
-}
+    var allowProperties = ["color", "font-style", "font-weight"];
+
+    cssParser.ruleSets.forEach( function(ruleSet)
+    {
+        ruleSet.declarations = ruleSet.declarations.filter( function(decl)
+        {
+            return allowProperties.indexOf( decl.property ) > -1;
+        })
+    });
 
 
-function contentOfFirstTag(tag, text, startFromIndex)
-{
-    var start_open_tag = '<'+tag;
-    var start_close_tag = '>';
-    var end_tag = '</'+tag+'>';
-
-    var start_open_index = text.indexOf(start_open_tag, startFromIndex);
-    var start_close_index = text.indexOf(start_close_tag, start_open_index);
-    var end_index = text.indexOf(end_tag, start_close_index);
-
-    if(start_open_index < 0)
-        return null;
-
-    return text.substring(start_close_index+start_close_tag.length, end_index);
+    return {
+        css: cssParser.cssText(),
+        html: $content.html()
+    }
 }

@@ -1,7 +1,6 @@
 
 /* TODO
 
-
 *cleanup google docs html*
     - strip html/head/meta/body elements
     - strip all css elements from style except those starting with .c
@@ -45,6 +44,12 @@
  - show small image of user last edited by if it was not you and you have not yet seen the changes
 
  - show photos (with name in popover) of users the file is shared with
+
+
+ ANGULAR JS
+ - http://www.ng-newsletter.com/posts/chrome-apps-on-angular.html
+ - https://developer.chrome.com/apps/angular_framework
+
  */
 
 /*
@@ -202,14 +207,14 @@ function setupSortable()
 
 
 function onDocumentFocus(e)
-{
+{/*
     var doc = $('.summernote').data('editing-doc');
 
     if(doc)
     {
         doc.cursorPos = document.getSelection().anchorOffset;
         console.log("onDocumentFocus doc.cursorPos = " + doc.cursorPos);
-    }
+    }*/
 }
 
 function onDocumentChange(contents, $editable)
@@ -224,8 +229,6 @@ function onDocumentChange(contents, $editable)
 
         updateDocumentTitle(doc);
         saveDocument(doc);
-
-        console.log("doc.cursorPos = " + doc.cursorPos);
     }
 }
 
@@ -488,8 +491,6 @@ function updateDisplay()
     {
         showSection('#auth-section');
         $('#auth-content').center();
-
-        return;
     }
     else
     {
@@ -538,6 +539,7 @@ function updateDisplay()
 
 function focusActiveInput()
 {
+    /*
     var activeDoc = $('.summernote').data('editing-doc');
 
     if(activeDoc)
@@ -547,6 +549,9 @@ function focusActiveInput()
         if(activeDoc.cursorPos)
             document.getSelection().anchorOffset = activeDoc.cursorPos;
     }
+    */
+
+    $('.summernote').blur();
 }
 
 
@@ -580,32 +585,15 @@ function updateDocumentTitle(doc)
     }
 }
 
-
-/* Example of HTML returned by Summernote
-<title>New Note</title>
-<meta content="text/html; charset=UTF-8" http-equiv="content-type">
-    <style type="text/css">ol{margin:0;padding:0}.c1{color:#000000;font-size:11pt;font-family:"Arial"}.c3{max-width:468pt;background-color:#ffffff;padding:72pt 72pt 72pt 72pt}.c2{height:11pt}.c0{direction:ltr}.title{padding-top:24pt;line-height:1.0;text-align:left;color:#000000;font-size:36pt;font-family:"Arial";font-weight:bold;padding-bottom:6pt;page-break-after:avoid}.subtitle{padding-top:18pt;line-height:1.0;text-align:left;color:#666666;font-style:italic;font-size:24pt;font-family:"Georgia";padding-bottom:4pt;page-break-after:avoid}li{color:#000000;font-size:11pt;font-family:"Arial"}p{color:#000000;font-size:11pt;margin:0;font-family:"Arial"}h1{padding-top:24pt;line-height:1.0;text-align:left;color:#000000;font-size:24pt;font-family:"Arial";font-weight:bold;padding-bottom:24pt}h2{padding-top:22.4pt;line-height:1.0;text-align:left;color:#000000;font-size:18pt;font-family:"Arial";font-weight:bold;padding-bottom:22.4pt}h3{padding-top:24pt;line-height:1.0;text-align:left;color:#000000;font-size:14pt;font-family:"Arial";font-weight:bold;padding-bottom:24pt}h4{padding-top:25.6pt;line-height:1.0;text-align:left;color:#000000;font-size:12pt;font-family:"Arial";font-weight:bold;padding-bottom:25.6pt}h5{padding-top:25.6pt;line-height:1.0;text-align:left;color:#000000;font-size:9pt;font-family:"Arial";font-weight:bold;padding-bottom:25.6pt}h6{padding-top:36pt;line-height:1.0;text-align:left;color:#000000;font-size:8pt;font-family:"Arial";font-weight:bold;padding-bottom:36pt}
-    </style>
-    <p class="c0">
-        <span class="c1">my new note &lt;b&gt;test&lt;/b&gt;last</span>
-    </p>
-    <p class="c0 c2">
-        secondline<span class="c1"></span>
-    </p>
-    <p class="c0 c2">
-        <span style="font-weight: bold;">bold&nbsp;</span>
-    </p>
-    <p class="c0 c2">
-        <ul><li>dot1</li></ul>
-    </p>
-*/
-
 function extractTitle(html)
 {
     if(!html || html.length == 0)
         return null;
 
-    var firstParagraph = contentOfFirstTag('p', html) || contentUntilTag('div', html);
+    console.log("extract title:");
+    console.log(html);
+
+    var firstParagraph = contentOfFirstTag('div', html) || contentUntilTag('div', html);
     var text = stripTags(firstParagraph);
 
     text = text.replace(/&lt;/g, '');
@@ -614,102 +602,6 @@ function extractTitle(html)
 
     MAX_TITLE_WORDS = 10;
     return text.split(' ').slice(0, MAX_TITLE_WORDS).join(' ');
-}
-
-function contentOfFirstTag(tag, text, startFromIndex)
-{
-    var start_open_tag = '<'+tag;
-    var start_close_tag = '>';
-    var end_tag = '</'+tag+'>';
-
-    var start_open_index = text.indexOf(start_open_tag, startFromIndex);
-    var start_close_index = text.indexOf(start_close_tag, start_open_index);
-    var end_index = text.indexOf(end_tag, start_close_index);
-
-    if(start_open_index < 0)
-        return null;
-
-    return text.substring(start_close_index+start_close_tag.length, end_index);
-}
-
-function contentUntilTag(tag, text, startFromIndex)
-{
-    var start_open_tag = '<'+tag;
-
-    var start_open_index = text.indexOf(start_open_tag, startFromIndex);
-
-    if(start_open_index < 0)
-        return text;
-
-    return text.substring(0, start_open_index);
-}
-
-function stripTags(text)
-{
-    var stripped = text;
-
-    while(true)
-    {
-        var start_index = stripped.indexOf('<');
-        var end_index = stripped.indexOf('>', start_index);
-
-        if(end_index > 0)
-            end_index += 1; // ie. '>' character
-
-        if(end_index >= stripped.length)
-            end_index = -1;
-
-        if(start_index >= 0) {
-            stripped = removeRange(stripped, start_index, end_index);
-        }
-
-        if(start_index < 0 || end_index < 0)
-            break;
-    }
-
-    return stripped;
-}
-
-
-function removeRange(s, start, end)
-{
-    var result = s.substring(0, start);
-
-    if(end >= 0)
-        result += s.substring(end);
-
-    return result;
-}
-
-
-function stripTag(tag, from)
-{
-    var start_tag = '<'+tag;
-    var end_tag = '</'+tag+'>';
-
-    var start_index = from.indexOf(start_tag);
-    var end_index = from.indexOf(end_tag);
-
-    if(start_index >= 0 && end_index >= 0)
-    {
-        return from.substring(0, start_index) + from.substring(end_index + end_tag.length);
-    }
-    else if(start_index >= 0)
-    {
-        end_tag = '>';
-        end_index = from.indexOf('>', start_index);
-
-        if(end_index)
-            return from.substring(0, start_index) + from.substring(end_index + end_tag.length);
-    }
-
-    return from;
-}
-
-
-function arrayContains(needle, arrhaystack)
-{
-    return (arrhaystack.indexOf(needle) > -1);
 }
 
 
@@ -730,6 +622,7 @@ function reorderDocumentCacheForDivs()
         background.cache.documents = reordered;
     }
 }
+
 
 function recalculateSpacerHeight()
 {
@@ -752,7 +645,3 @@ function recalculateSpacerHeight()
 
     $('#notes-list-space').css('height', (height)+'px');
 }
-
-jQuery.fn.cssFloat = function(prop) {
-    return parseFloat(this.css(prop)) || 0;
-};
