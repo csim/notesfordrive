@@ -240,6 +240,8 @@ function cacheDocs(completed)
                         {
                             var cleaned = cleanGoogleDocHTML(responseData);
 
+console.log(cleaned.html);
+
                             doc.contentHTML = "<style type=\"text/css\" scoped>" + cleaned.css + "</style>" + cleaned.html;
                             doc.hasDownloaded = true;
 
@@ -486,6 +488,9 @@ function cleanGoogleDocHTML(html)
 
 
     bodyContent = bodyContent
+        .replace(/<span><\/span>/g, '')     
+        .replace(/<p><\/p>/g, '<div><br/></div>')
+        .replace(/<p class=\"([\w\s]*)\"><\/p>/g, '<div><br/></div>')
         .replace(/<p/g, '<div')
         .replace(/<\/p>/g, '</div>');
 
