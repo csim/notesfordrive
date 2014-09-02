@@ -587,6 +587,9 @@ function updateDocumentTitle(doc)
     if(!title || title.length == 0)
         title = 'Untitled';
 
+    console.log(doc.contentHTML);
+    console.log('extracted title: ' + title);
+
     if(title != doc.title)
     {
         doc.title = title;
@@ -599,10 +602,10 @@ function extractTitle(html)
     if(!html || html.length == 0)
         return null;
 
-    console.log("extract title:");
-    console.log(html);
+    html = stripTag('style', html);
 
-    var firstParagraph = contentOfFirstTag('div', html) || contentUntilTag('div', html);
+    var firstParagraph = contentOfFirstOf(['div','span'], html) ||  contentUntilFirstOf(['div','span'], html);
+
     var text = stripTags(firstParagraph);
 
     text = text.replace(/&lt;/g, '');

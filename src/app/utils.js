@@ -33,6 +33,58 @@ if(typeof String.prototype.startsWith != 'function')
 }
 
 
+function contentOfFirstOf(tags, text)
+{
+    var first_tag = null;
+    var first_index = -1;
+
+    tags.forEach( function(tag)
+    {
+        var start_open_tag = '<'+tag;
+        var start_open_index = text.indexOf(start_open_tag);
+
+        if(start_open_index > first_index)
+        {
+            first_tag = tag;
+            first_index = start_open_index;
+        }
+    });
+
+    if(first_tag)
+    {
+        return contentOfFirstTag(first_tag, text);
+    }
+    else
+        return null;
+}
+
+
+function contentUntilFirstOf(tags, text)
+{
+    var first_tag = null;
+    var first_index = -1;
+
+    tags.forEach( function(tag)
+    {
+        var start_open_tag = '<'+tag;
+        var start_open_index = text.indexOf(start_open_tag);
+
+        if(start_open_index > first_index)
+        {
+            first_tag = tag;
+            first_index = start_open_index;
+        }
+    });
+
+    if(first_tag)
+    {
+        return contentUntilTag(first_tag, text);
+    }
+    else
+        return null;
+}
+
+
 function contentOfFirstTag(tag, text, startFromIndex)
 {
     var start_open_tag = '<'+tag;
