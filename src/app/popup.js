@@ -129,8 +129,7 @@ function setupSummernote()
           focus: false,
 
           toolbar: [
-              ['style', ['bold', 'italic', 'underline']],
-              ['fontsize', ['fontsize']],
+              ['font', ['bold', 'italic', 'underline']],
               ['color', ['color']],
               ['para', ['ul', 'ol']]
           ],
@@ -587,7 +586,6 @@ function updateDocumentTitle(doc)
     if(!title || title.length == 0)
         title = 'Untitled';
 
-    console.log(doc.contentHTML);
     console.log('extracted title: ' + title);
 
     if(title != doc.title)
@@ -602,7 +600,11 @@ function extractTitle(html)
     if(!html || html.length == 0)
         return null;
 
+ console.log('original: ' + html);
+
     html = stripTag('style', html);
+
+console.log('stripped: ' + html);
 
     var firstParagraph = contentOfFirstOf(['div','span'], html) ||  contentUntilFirstOf(['div','span'], html);
 

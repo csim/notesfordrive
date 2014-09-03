@@ -486,16 +486,34 @@ function cleanGoogleDocHTML(html)
     var bodyContent = contentOfFirstTag('body', html);
     var styleContent = contentOfFirstTag('style', html);
 
-
+    // remove empty span's and replace empty p's (including those with classes) with a line break
+    // convert p's to div's for better contenteditable element support
     bodyContent = bodyContent
-        .replace(/<span><\/span>/g, '')     
+        .replace(/<span><\/span>/g, '')
+        .replace(/<span class=\"([\w\s]*)\"><\/span>/g, '')
         .replace(/<p><\/p>/g, '<div><br/></div>')
         .replace(/<p class=\"([\w\s]*)\"><\/p>/g, '<div><br/></div>')
         .replace(/<p/g, '<div')
         .replace(/<\/p>/g, '</div>');
 
+   // replace headings with bold spans
+    bodyContent = bodyContent
+        .replace(/<h1/g, '<b')
+        .replace(/<\/h1>/g, '</b>')
+        .replace(/<h2/g, '<b')
+        .replace(/<\/h2>/g, '</b>')
+        .replace(/<h3/g, '<b')
+        .replace(/<\/h3>/g, '</b>')
+        .replace(/<h4/g, '<b')
+        .replace(/<\/h4>/g, '</b>')
+        .replace(/<h5/g, '<b')
+        .replace(/<\/h5>/g, '</b>')
+        .replace(/<h6/g, '<b')
+        .replace(/<\/h6>/g, '</b>');
+
     var $content = $('<div>' + bodyContent + '</div>');
 
+    // remove classes that we don't use and may get in our way (ie. everything that does not start with a 'c')
     $content.find('*').each(function()
     {
         var $elem = $(this);
@@ -510,7 +528,7 @@ function cleanGoogleDocHTML(html)
         });
     });
 
-
+    // remove all selectors that dont start with '.c' from style content
     var cssParser = new IceburgCSS(styleContent);
 
     cssParser.ruleSets = cssParser.ruleSets.filter( function(ruleSet)
@@ -518,8 +536,8 @@ function cleanGoogleDocHTML(html)
         return ruleSet.selector.startsWith(".c");
     });
 
-
-    var allowProperties = ["color", "font-style", "font-weight"];
+    // remove all properties except those we explicitly allow (eg. line-height will really mess us up)
+    var allowProperties = ["color", "background-color", "font-style", "font-weight"];
 
     cssParser.ruleSets.forEach( function(ruleSet)
     {
