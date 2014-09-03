@@ -586,8 +586,6 @@ function updateDocumentTitle(doc)
     if(!title || title.length == 0)
         title = 'Untitled';
 
-    console.log('extracted title: ' + title);
-
     if(title != doc.title)
     {
         doc.title = title;
@@ -600,15 +598,21 @@ function extractTitle(html)
     if(!html || html.length == 0)
         return null;
 
- console.log('original: ' + html);
-
     html = stripTag('style', html);
 
-console.log('stripped: ' + html);
+    var firstParagraph = null;
 
-    var firstParagraph = contentOfFirstOf(['div','span'], html) ||  contentUntilFirstOf(['div','span'], html);
+    if(html && html.length && html.charAt(0) != '<')
+    {
+        firstParagraph = contentUntil('<', html);
+    }
+    else
+        firstParagraph = contentOfFirstOf(['div','span'], html) ||  contentUntilFirstOf(['div','span'], html) || html;
 
     var text = stripTags(firstParagraph);
+
+    if(!text || text.length == 0)
+        return null;
 
     text = text.replace(/&lt;/g, '');
     text = text.replace(/&gt;/g, '');
@@ -654,8 +658,6 @@ function recalculateSpacerHeight()
     {
         $('#notes-list-container').css('overflow-y', 'hidden');
     }
-
-    console.log('recalc, container:' + containerHeight + ", list:" + listHeight + ", height:" + height);
 
     $('#notes-list-space').css('height', (height)+'px');
 }

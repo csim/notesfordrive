@@ -240,8 +240,6 @@ function cacheDocs(completed)
                         {
                             var cleaned = cleanGoogleDocHTML(responseData);
 
-console.log(cleaned.html);
-
                             doc.contentHTML = "<style type=\"text/css\" scoped>" + cleaned.css + "</style>" + cleaned.html;
                             doc.hasDownloaded = true;
 
@@ -437,9 +435,6 @@ function debug_printDocs(docsList, name)
 
 function saveDocument(doc, callback_started, callback_completed)
 {
-    console.log("saveDocument_forReals: ");
-    console.log(doc);
-
     if(!doc || !doc.dirty || doc.saving)
         return;
 
@@ -451,8 +446,6 @@ function saveDocument(doc, callback_started, callback_completed)
 
     var success = function(item_response)
     {
-        console.log("saveDocument_forReals success");
-
         doc.item = item_response;
         doc.saving = false;
 

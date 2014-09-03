@@ -43,7 +43,7 @@ function contentOfFirstOf(tags, text)
         var start_open_tag = '<'+tag;
         var start_open_index = text.indexOf(start_open_tag);
 
-        if(start_open_index > first_index)
+        if(first_index < 0 || start_open_index < first_index)
         {
             first_tag = tag;
             first_index = start_open_index;
@@ -69,7 +69,7 @@ function contentUntilFirstOf(tags, text)
         var start_open_tag = '<'+tag;
         var start_open_index = text.indexOf(start_open_tag);
 
-        if(start_open_index > first_index)
+        if(first_index < 0 || start_open_index < first_index)
         {
             first_tag = tag;
             first_index = start_open_index;
@@ -115,11 +115,22 @@ function contentUntilTag(tag, text, startFromIndex)
 }
 
 
+function contentUntil(find, text)
+{
+    var start_open_index = text.indexOf(find);
+
+    if(start_open_index < 0)
+        return text;
+
+    return text.substring(0, start_open_index);
+}
+
+
 function stripTags(text)
 {
     var stripped = text;
 
-    while(true)
+    while(stripped)
     {
         var start_index = stripped.indexOf('<');
         var end_index = stripped.indexOf('>', start_index);
