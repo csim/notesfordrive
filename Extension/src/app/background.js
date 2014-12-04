@@ -20,6 +20,13 @@ var cache =
 };
 
 
+chrome.runtime.onInstalled.addListener(function(details){
+    chrome.tabs.create({
+      url: '/src/app/installed.html'
+    });
+});
+
+
 document.addEventListener("DOMContentLoaded", function()
 {
     gdrive = new GDrive();

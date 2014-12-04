@@ -1,0 +1,41 @@
+body
+{
+    background-color: #fff;
+    font-family: 'Open Sans', sans-serif;
+}
+
+h1
+{
+      color: #525252;
+      font-size: 34px;
+}
+
+#content
+{
+  padding-top: 100px;
+}
+
+#welcome
+{
+  position:relative;
+  width: 900px;
+  margin: 0 auto;
+}
+
+#install-arrow
+{
+  position: absolute;
+  bottom: 12px;
+  right: 20px;
+}
+
+.center
+{
+    text-align: center;
+}
+
+.subtitle
+{
+    font-size: 1.5em;
+    padding: 10px;
+}
