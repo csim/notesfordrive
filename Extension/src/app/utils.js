@@ -193,3 +193,21 @@ function arrayContains(needle, arrhaystack)
 {
     return (arrhaystack.indexOf(needle) > -1);
 }
+
+
+var getTabs = function(urlMatch, callback)
+{
+    var tabs = [];
+
+    chrome.tabs.query({
+      status: 'complete'
+    }, function(results) {
+      for (var i = results.length; i--;) {
+        if (results[i].url.indexOf(urlMatch) !== -1) {
+          tabs.push(results[i].id);
+        }
+      }
+
+      callback(tabs);
+    });
+};

@@ -20,10 +20,14 @@ var cache =
 };
 
 
-chrome.runtime.onInstalled.addListener(function(details){
-    chrome.tabs.create({
-      url: '/src/app/installed.html'
-    });
+chrome.runtime.onInstalled.addListener(function(details)
+{
+    if(details.reason == "install")
+    {
+        chrome.tabs.create({
+          url: '/src/app/installed.html'
+        });
+    }
 });
 
 

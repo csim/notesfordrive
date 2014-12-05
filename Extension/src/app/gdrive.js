@@ -40,7 +40,16 @@ GDrive.prototype.auth = function(options, opt_callback_authorized, opt_callback_
 {
     try
     {
-        this.googleAuth.authorize(options, opt_callback_authorized, opt_callback_failure);
+        var authentication_succeeded = function()
+        {
+            chrome.runtime.sendMessage( {'authenticationSucceeded': true} );
+
+            if(opt_callback_authorized)
+                opt_callback_authorized();
+
+        }.bind(this);
+
+        this.googleAuth.authorize(options, authentication_succeeded, opt_callback_failure);
     }
     catch(e)
     {
