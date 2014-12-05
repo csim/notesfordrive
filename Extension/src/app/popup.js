@@ -151,10 +151,38 @@ function setupSortable()
 
 function setupRate()
 {
-  $('#rate-button').click( function()
-  {
-    chrome.tabs.create({'url': "http://chrome.google.com/webstore/detail/notes-for-google-drive/ndidogegapfaolpcebadjknkdlladffa/reviews"} );
-  });
+    $('#rate-button').click( function()
+    {
+        $('#rate-dialog').hide();
+        $('#rate-overlay').hide();
+        chrome.storage.sync.set({'rated': true});
+
+        chrome.tabs.create({'url': "http://chrome.google.com/webstore/detail/notes-for-google-drive/ndidogegapfaolpcebadjknkdlladffa/reviews"} );
+    });
+
+    $('#rate-dismiss-button').click( function()
+    {
+        $('#rate-dialog').hide();
+        $('#rate-overlay').hide();
+        chrome.storage.sync.set({'opened': 0});
+    });
+
+    chrome.storage.sync.get(null, function(result)
+    {
+        var rated = result['rated'];
+        var opened = result['opened'];
+
+        if(!opened)
+            opened = 0;
+
+        if(!rated && opened >= 20)
+        {
+            $('#rate-dialog').show();
+            $('#rate-overlay').show();
+        }
+
+        chrome.storage.sync.set({'opened': opened+1});
+    });
 }
 
 
