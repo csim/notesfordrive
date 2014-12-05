@@ -17,10 +17,12 @@ document.addEventListener('DOMContentLoaded', function()
     setupPopovers();
     setupSummernote();
     setupSortable();
+    setupRate();
+
 
     $('#settings-button').click( function()
     {
-        chrome.tabs.create({'url': chrome.extension.getURL("src/options/options.html") } )
+      chrome.tabs.create({'url': chrome.extension.getURL("src/options/options.html") } );
     });
 
     $('#new-button').click( function()
@@ -145,6 +147,16 @@ function setupSortable()
         }
     });
 }
+
+
+function setupRate()
+{
+  $('#rate-button').click( function()
+  {
+    chrome.tabs.create({'url': "http://chrome.google.com/webstore/detail/notes-for-google-drive/ndidogegapfaolpcebadjknkdlladffa/reviews"} );
+  });
+}
+
 
 
 function onDocumentFocus(e)
