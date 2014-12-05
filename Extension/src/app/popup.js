@@ -158,7 +158,6 @@ function setupRate()
 }
 
 
-
 function onDocumentFocus(e)
 {/*
     var doc = $('.summernote').data('editing-doc');

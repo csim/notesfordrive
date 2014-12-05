@@ -416,7 +416,7 @@ h1
   background-color: red;
 
   padding: 10px;
-  
+
   position: absolute;
   top:0;
   bottom: 0;
@@ -424,6 +424,7 @@ h1
   right: 0;
 
   margin: auto;
+  display: none;
 }
 
 
