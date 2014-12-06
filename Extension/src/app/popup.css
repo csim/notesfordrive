@@ -5,6 +5,7 @@ body
     margin: 0px;
     height: 500px;
     width: 750px;
+    /*font-family: 'Open Sans', sans-serif;*/
     font-family: Helvetica, Ubuntu, Arial, sans-serif;
 }
 
@@ -43,21 +44,9 @@ h3
 {
     position: absolute;
     width: 100%;
-    height: 42px;
+    height: 44px;
     top: 0;
-    background-color: #ff4d6f;
-    border-bottom: 2px solid #df4464;
-}
-
-#footer
-{
-    position: absolute;
-    width: 100%;
-    height: 40px;
-    bottom: 0;
-    background-color: #f4f4f4;
-    border-top: 1px solid #d6d6d6;
-    z-index: 20;
+    background-color: #4EB9FF;
 }
 
 #content
@@ -65,9 +54,8 @@ h3
     position: absolute;
     width: 100%;
     top: 42px;
-    bottom: 40px;
+    bottom: 0;
 }
-
 
 
 #auth-section
@@ -143,28 +131,27 @@ h3
 .notes-list-item
 {
     cursor: pointer;
-    padding: 10px 8px 10px 8px;
+    padding: 14px 8px 14px 8px;
     position: relative;
-    border-right: 1px solid #d6d6d6;
 }
 .notes-list-item:hover
 {
-    background-color: rgba(255, 255, 178, 0.35);
+    background-color: #514343;
 }
 .notes-list-item.active
 {
-    font-weight: bold;
-    background-color: rgb(255, 255, 178);
-    color: #595959;
+    color: white;
+    background-color: #4A3C3C;
+    /*font-weight: bold;*/
 }
 .notes-list-item .arrow
 {
-    width: 10px;
-    height: 30px;
+    width: 8px;
+    height: 23px;
     position: absolute;
     z-index: 10;
-    top: 5px;
-    right: -1px;
+    top: 12px;
+    right: 0px;
     border-right: none;
     overflow: hidden;
 }
@@ -172,9 +159,8 @@ h3
 .notes-list-item p
 {
     margin: 0;
-    color: #494949;
+    color: white;
     font-size: 1em;
-    font-family: Helvetica, sans-serif;
 }
 
 
@@ -184,12 +170,12 @@ h3
     height: 100%;
     float: left;
     overflow-y: scroll;
+    background-color: #5F5050;
 }
 
 
 #notes-list-space
 {
-    border-right: 1px solid #d6d6d6;
     height: 100%;
 }
 
@@ -213,10 +199,17 @@ h3
 
 #active-note-footer
 {
-    width: 70%;
-    float: right;
     display: none;
+    position: absolute;
+    height: 40px;
+    bottom: 0;
+    right: 1%;
+    width: 68%;
+    background-color: white;
+    border-top: 1px solid #d6d6d6;
+    z-index: 20;
 }
+
 
 #active-note-actions
 {
@@ -227,7 +220,7 @@ h3
 {
     float: left;
     width: 50%;
-    margin-left: 8px;
+    margin-left: 0px;
     margin-top: 9px;
     color: rgb(124, 124, 124);
     opacity: 0.6;
@@ -245,18 +238,18 @@ h3
 {
     color: white;
     font-size: 1.2em;
-    position: absolute; bottom: 6px; left: 8px;
+    position: absolute; bottom: 9px; left: 8px;
 }
 
 #app-actions
 {
-    position: absolute; bottom: -3px; right: 3px;
+    position: absolute; bottom: 1px; right: 3px;
 }
 
 #settings-button
 {
     padding: 5px;
-    color: rgba(225, 70, 105, 0.47);
+    color: rgba(255, 255, 255, 0.25);
     font-size: 1.6em;
     transition: color 0.1s linear;
     outline: none;
@@ -305,12 +298,12 @@ h3
     width: 40px;
     height: 40px;
     position: absolute;
-    left: 8px;
-    bottom: 10px;
+    left: 7px;
+    bottom: 7px;
     padding-top: 10px;
     padding-left: 12px;
     color: #ffffff;
-    background-color: #ff4d6f;
+    background-color: #4EB9FF;
     border-radius: 20px;
     outline: none;
     box-shadow: none;
@@ -318,7 +311,7 @@ h3
 }
 #new-button:hover
 {
-    background-color: #c8415f;
+    background-color: #3DA0E0;
 }
 
 
@@ -326,7 +319,6 @@ h3
 {
     margin-top: 2px;
     padding-left: 2px;
-    padding-right: 10px;
     color: #9d9d9d;
     font-size: 1.1em;
     transition: color 0.1s linear;
@@ -340,11 +332,11 @@ h3
 
 #edit-in-drive-button
 {
-    outline: none;
-    box-shadow: none;
-    margin-top: 1px;
+    margin-top: 10px;
     padding-left: 6px;
     padding-right: 2px;
+    outline: none;
+    box-shadow: none;
 }
 
 
@@ -368,11 +360,11 @@ h3
 {
     content: url('img/google-drive-20-grayscale.png');
     opacity: 0.4;
-    margin-top: 2px;
+    transition: opacity 0.1s linear;
 }
 .drive-icon:hover
 {
-   content: url('img/google-drive-20-color.png');
+   /*content: url('img/google-drive-20-color.png');*/
    opacity: 1;
 }
 
@@ -431,7 +423,7 @@ h3
 #rate-dialog
 {
     width: 500px;
-    height: 175px;
+    height: 200px;
     opacity: 1;
     background-color: white;
 
@@ -463,35 +455,39 @@ h3
     bottom: 20px;
     left: 0;
     right: 0;
-    height: 40px;
+    height: 60px;
 }
 
-#rate-button, #rate-dismiss-button
+#rate-button
 {
     position: relative;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     color: #ffffff;
-    background-color: #BEE156;
+    background-color: #92D549;
     border-radius: 4px;
     outline: none;
     box-shadow: none;
     transition: all 0.1s linear;
 }
-#rate-button:hover, #rate-dismiss-button:hover
-{
-    background-color: #B4D160;
-}
-
-
-#rate-button
-{
-  background-color: #92D549;
-}
 #rate-button:hover
 {
-  background-color: #94C85C;
+    background-color: #94C85C;
 }
 
+#rate-dismiss-button
+{
+  position: relative;
+  margin-bottom: 20px;
+  color: #999999;
+  outline: none;
+  box-shadow: none;
+  transition: all 0.1s linear;
+}
+#rate-dismiss-button:hover
+{
+  color: #333333;
+  text-decoration: none;
+}
 
 
 /* Bootstrap Overrides */

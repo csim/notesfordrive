@@ -24,9 +24,16 @@ chrome.runtime.onInstalled.addListener(function(details)
 {
     if(details.reason == "install")
     {
-        chrome.tabs.create({
-          url: '/src/app/installed.html'
-        });
+        chrome.tabs.create({url: '/src/app/installed.html'});
+    }
+    else if(details.reason == "update")
+    {
+        var thisVersion = chrome.runtime.getManifest().version;
+
+        if(thisVersion == "1.6")
+        {
+            chrome.tabs.create({url: '/src/app/updated.html'});
+        }
     }
 });
 

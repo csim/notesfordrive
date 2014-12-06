@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function()
     setupSummernote();
     setupSortable();
     setupRate();
-
+    setupTooltips();
 
     $('#settings-button').click( function()
     {
@@ -165,17 +165,19 @@ function setupRate()
         $('#rate-dialog').hide();
         $('#rate-overlay').hide();
         chrome.storage.sync.set({'opened': 0});
+        chrome.storage.sync.set({'check-at': 60});
     });
 
     chrome.storage.sync.get(null, function(result)
     {
         var rated = result['rated'];
         var opened = result['opened'];
+        var checkAt = result['check-at'];
 
-        if(!opened)
-            opened = 0;
+        if(!opened) opened = 0;
+        if(!checkAt) checkAt = 20;
 
-        if(!rated && opened >= 20)
+        if(!rated && opened >= checkAt)
         {
             $('#rate-dialog').show();
             $('#rate-overlay').show();
@@ -183,6 +185,13 @@ function setupRate()
 
         chrome.storage.sync.set({'opened': opened+1});
     });
+}
+
+
+function setupTooltips()
+{
+    $('#edit-in-drive-button').tooltip();
+    $('#trash-button').tooltip();
 }
 
 
@@ -430,7 +439,7 @@ function updateActiveArrow()
     if(activeDoc)
     {
         var isFirst = background.cache.documents[0] == activeDoc;
-        var arrowIcon = isFirst ? "notes-arrow-light-grey.png" : "notes-arrow.png";
+        var arrowIcon = isFirst ? "notes-arrow-light-grey.png" : "notes-arrow-white.png";
 
         activeDoc.$notesListElement.prepend( $("<img class='arrow' src='img/" + arrowIcon + "'/>") );
     }

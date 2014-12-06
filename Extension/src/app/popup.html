@@ -57,7 +57,7 @@
 
         <div id="first-use-section">
             <div id="first-use-content">
-                <div class="title-text">Some quick tips to get you started</div>
+                <div class="title-text">Quick Tips</div>
                 <ul>
                   <li>The first line of your note will be used as the title</li>
                   <li>Items can be re-ordered by dragging and dropping to another position in the list</li>
@@ -84,39 +84,31 @@
             <div id="notes-list-container">
                 <div id="notes-list"></div>
                 <div id="notes-list-space"></div>
+
+                <div id="notes-list-buttons">
+                  <a id="new-button" class="" href="#" title="New Note">
+                    <i class="fa fa-pencil fa-lg"></i>
+                  </a>
+                </div>
             </div>
 
             <div id="note-content-container">
+
                 <div class="summernote"></div>
-            </div>
-        </div>
 
-    </div>
+                <div id="active-note-footer">
+                  <div id="active-note-status"></div>
 
-    <div id="footer">
+                  <div id="active-note-actions">
+                    <a id="edit-in-drive-button" class="drive-icon" href="#" data-toggle="tooltip" title="Edit in Google Drive" tabIndex="-1">
 
-        <div id="notes-list-buttons">
-
-            <a id="new-button" class="" href="#" title="New Note">
-                <i class="fa fa-pencil fa-lg"></i>
-            </a>
-
-        </div>
-
-        <div id="active-note-footer">
-
-            <div id="active-note-status"></div>
-
-            <div id="active-note-actions">
-                <a id="note-actions-button" href="#" class="btn trigger" data-toggle="popover">
-                    &bull;&bull;&bull;
-                </a>
-                <div class="popover-content hide">
-                  <ul>
-                    <li id="active-item-trash">Send to Trash</li>
-                    <li id="active-item-drive">Edit in Google Drive</li>
-                  </ul>
+                    </a>
+                    <a id="trash-button" class="" href="#" data-toggle="tooltip" title="Send to Trash" tabIndex="-1">
+                      Trash
+                    </a>
+                  </div>
                 </div>
+
             </div>
         </div>
 
@@ -131,11 +123,14 @@
 
         <div id="rate-buttons" class="center">
 
-            <a id="rate-dismiss-button" class="btn" href="#" tabIndex="-1">
-              Maybe Later
-            </a>
             <a id="rate-button" class="btn" href="#" tabIndex="-1">
               Open in New Tab
+            </a>
+
+            <br/>
+
+            <a id="rate-dismiss-button" href="#" tabIndex="-1">
+              Maybe Later
             </a>
 
         </div>

@@ -29,6 +29,13 @@ h1
   right: 20px;
 }
 
+#update-message
+{
+  margin-top: 20px;
+  font-size: 1.3em;
+  padding: 10px;
+}
+
 .center
 {
     text-align: center;
