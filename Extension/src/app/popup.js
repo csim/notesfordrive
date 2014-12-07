@@ -114,7 +114,7 @@ function setupPopovers()
         });
     });
 
-    $(document).on("click", "#active-item-trash", function()
+    $(document).on("click", "#trash-button", function()
     {
         var activeDoc = $('.summernote').data('editing-doc');
 
@@ -124,7 +124,7 @@ function setupPopovers()
         $popoverSelector.popover('hide');
     });
 
-    $(document).on("click", "#active-item-drive", function()
+    $(document).on("click", "#edit-in-drive-button", function()
     {
         var activeDoc = $('.summernote').data('editing-doc');
 

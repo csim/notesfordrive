@@ -214,6 +214,7 @@ h3
 #active-note-actions
 {
     float: right;
+    width: 50%;
 }
 
 #active-note-status
@@ -227,11 +228,6 @@ h3
     font-size: 1em;
     transition: opacity 0.1s linear;
 }
-#active-note-status:hover
-{
-    opacity: 1;
-}
-
 
 
 #app-title
@@ -315,56 +311,41 @@ h3
 }
 
 
-#trash-button
+#trash-button, #edit-in-drive-button
 {
-    margin-top: 2px;
-    padding-left: 2px;
-    color: #9d9d9d;
-    font-size: 1.1em;
-    transition: color 0.1s linear;
+    color: #d6d6d6;
     outline: none;
     box-shadow: none;
+    transition: color 0.1s linear;
+    display: block;
+    float: right;
+    margin-top: 8px;
+    margin-left: 7px;
+    padding: 1px;
 }
-#trash-button:hover
+#trash-button:hover, #edit-in-drive-button:hover
 {
     color: #5d5d5d;
 }
 
 #edit-in-drive-button
 {
-    margin-top: 10px;
-    padding-left: 6px;
-    padding-right: 2px;
-    outline: none;
-    box-shadow: none;
+  padding-top: 2px;
 }
 
-
-#note-actions-button
+.trash-icon, .edit-icon
 {
-    padding-bottom: 5px;
-    color: rgb(124, 124, 124);
-    outline: none;
-    box-shadow: none;
-    opacity: 0.6;
-    font-size: 20px;
-    transition: opacity 0.1s linear;
+  font-size: 19px;
 }
-#note-actions-button:hover
-{
-    opacity: 1;
-}
-
 
 .drive-icon
 {
-    content: url('img/google-drive-20-grayscale.png');
+    content: url('img/drive-icon-20.png');
     opacity: 0.4;
     transition: opacity 0.1s linear;
 }
 .drive-icon:hover
 {
-   /*content: url('img/google-drive-20-color.png');*/
    opacity: 1;
 }
 
