@@ -9,6 +9,11 @@ document.addEventListener('DOMContentLoaded', function()
         background.gdrive.revokeAuthToken( updateDisplay );
     });
 
+    $('#open-folder-button').click( function()
+    {
+        chrome.tabs.create({ url: background.cache.folder.alternateLink });
+    });
+
     window.setTimeout(function()
     {
         updateDisplay();
@@ -21,6 +26,7 @@ function updateDisplay()
     var hasAccessToken = background.gdrive.oauth.hasAccessToken();
 
     $('#sign-out-button').prop('disabled', !hasAccessToken);
+    $('#open-folder-button').prop('disabled', !background.cache.folder);
 
     if(hasAccessToken)
     {

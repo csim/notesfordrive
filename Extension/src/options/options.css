@@ -66,6 +66,24 @@ hr
 }
 
 
+#open-folder-button
+{
+  color: white;
+  font-family: 'Open Sans', sans-serif;
+  outline: none;
+  box-shadow: none;
+  background-color: #4EB9FF;
+  transition: all 0.1s linear;
+  padding-left: 20px;
+  padding-right: 20px;
+  margin: 5px;
+}
+#open-folder-button:hover
+{
+  background-color: #3DA0E0;
+}
+
+
 #signed-in-as
 {
     display: none;

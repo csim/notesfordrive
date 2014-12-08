@@ -1,11 +1,4 @@
 
-/* Feature Ideas
-
-  - Remember cursor position
-
-*/
-
-
 var background = chrome.extension.getBackgroundPage();
 
 // this is used to configure whether interactive re-authentication is enabled on 401's (ie. when access tokens expire)
@@ -190,8 +183,8 @@ function setupRate()
 
 function setupTooltips()
 {
-    $('#edit-in-drive-button').tooltip();
     $('#trash-button').tooltip();
+    $('#edit-in-drive-button').tooltip();
 }
 
 
@@ -397,6 +390,11 @@ function createDocument(title, content)
 
     addDocument(doc);
     setActiveDoc(doc);
+
+    // scroll to bottom with animation
+    $('#notes-list-container').stop().animate({
+      scrollTop: $("#notes-list-container")[0].scrollHeight
+    }, 800);
 }
 
 
@@ -458,9 +456,7 @@ function showSections(divs)
     $('#loading-section').toggle( arrayContains('#loading-section', divs) );
     $('#first-use-section').toggle( arrayContains('#first-use-section', divs) );
     $('#documents-section').toggle( arrayContains('#documents-section', divs) );
-
-    $('#notes-list-buttons').toggle( arrayContains('#notes-list-buttons', divs) );
-    $('#active-note-footer').toggle( arrayContains('#active-note-footer', divs) );
+    $('#actions-section').toggle( arrayContains('#actions-section', divs) );
 }
 
 
@@ -490,9 +486,9 @@ function updateDisplay()
         }
         else
         {
-            chrome.storage.sync.get('seen-instructions', function(result)
+            chrome.storage.sync.get(null, function(result)
             {
-                var hasSeenInstructions = result[ 'seen-instructions' ];
+                var hasSeenInstructions = result['seen-instructions'];
 
                 if(!hasSeenInstructions)
                 {
@@ -508,14 +504,14 @@ function updateDisplay()
                 {
                     if(background.cache.documents.length > 0)
                     {
-                        showSections( ['#documents-section', '#notes-list-buttons', '#active-note-footer'] );
+                        showSections( ['#documents-section', '#actions-section'] );
 
                         focusActiveInput();
                         recalculateSpacerHeight();
                     }
                     else
                     {
-                        showSections( ['#message-section', '#notes-list-buttons'] );
+                        showSections( ['#message-section', '#actions-section'] );
 
                         $('#message-content').text("You don't have any notes. Create one using the pencil icon below.");
                         $('#message-content').center();

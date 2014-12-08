@@ -142,7 +142,6 @@ h3
 {
     color: white;
     background-color: #4A3C3C;
-    /*font-weight: bold;*/
 }
 .notes-list-item .arrow
 {
@@ -169,8 +168,17 @@ h3
     width: 30%;
     height: 100%;
     float: left;
-    overflow-y: scroll;
+    overflow-y: auto;
     background-color: #5F5050;
+}
+
+#notes-list-container::-webkit-scrollbar
+{
+    -webkit-appearance: none;
+}
+#notes-list-container::-webkit-scrollbar:vertical
+{
+    width: 0px;
 }
 
 
@@ -199,7 +207,6 @@ h3
 
 #active-note-footer
 {
-    display: none;
     position: absolute;
     height: 40px;
     bottom: 0;
@@ -338,17 +345,6 @@ h3
   font-size: 19px;
 }
 
-.drive-icon
-{
-    content: url('img/drive-icon-20.png');
-    opacity: 0.4;
-    transition: opacity 0.1s linear;
-}
-.drive-icon:hover
-{
-   opacity: 1;
-}
-
 
 .popover-content
 {
@@ -485,4 +481,35 @@ h3
 .note-editor .note-toolbar
 {
     border-bottom: 1px solid #d6d6d6;
+}
+
+.note-editable::-webkit-scrollbar
+{
+  width: 8px;
+  height: 8px;
+}
+.note-editable::-webkit-scrollbar-button
+{
+  width: 0px;
+  height: 0px;
+}
+.note-editable::-webkit-scrollbar-thumb
+{
+  background: #b8b8b8;
+  border: 0px none #ffffff;
+  border-radius: 50px;
+}
+.note-editable::-webkit-scrollbar-thumb:hover
+{
+  background: #909090;
+}
+.note-editable::-webkit-scrollbar-track
+{
+  background: #ffffff;
+  border: 0px none #ffffff;
+  border-radius: 50px;
+}
+.note-editable::-webkit-scrollbar-corner
+{
+  background: transparent;
 }
