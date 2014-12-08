@@ -168,7 +168,7 @@ function setupRate()
         var checkAt = result['check-at'];
 
         if(!opened) opened = 0;
-        if(!checkAt) checkAt = 20;
+        if(!checkAt) checkAt = 30;
 
         if(!rated && opened >= checkAt)
         {
