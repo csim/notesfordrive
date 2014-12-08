@@ -371,6 +371,9 @@ function trashDocument(doc)
     }
 
     setActiveDoc(nextDoc);
+
+    // BUG FIX - force a refresh as for some reason the container doesn't redraw correctly (leaves a white background color)
+    $('#notes-list-container').hide().show(0);
 }
 
 
@@ -437,7 +440,7 @@ function updateActiveArrow()
     if(activeDoc)
     {
         var isFirst = background.cache.documents[0] == activeDoc;
-        var arrowIcon = isFirst ? "notes-arrow-light-grey.png" : "notes-arrow-white.png";
+        var arrowIcon = isFirst ? "notes-arrow-light-grey.svg" : "notes-arrow-white.svg";
 
         activeDoc.$notesListElement.prepend( $("<img class='arrow' src='img/" + arrowIcon + "'/>") );
     }

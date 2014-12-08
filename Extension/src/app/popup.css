@@ -5,7 +5,6 @@ body
     margin: 0px;
     height: 500px;
     width: 750px;
-    /*font-family: 'Open Sans', sans-serif;*/
     font-family: Helvetica, Ubuntu, Arial, sans-serif;
 }
 
@@ -149,7 +148,7 @@ h3
     height: 23px;
     position: absolute;
     z-index: 10;
-    top: 12px;
+    top: 13px;
     right: 0px;
     border-right: none;
     overflow: hidden;
@@ -485,8 +484,8 @@ h3
 
 .note-editable::-webkit-scrollbar
 {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 }
 .note-editable::-webkit-scrollbar-button
 {
@@ -495,13 +494,17 @@ h3
 }
 .note-editable::-webkit-scrollbar-thumb
 {
-  background: #b8b8b8;
+  background:rgba(0,0,0,0.2);
   border: 0px none #ffffff;
   border-radius: 50px;
 }
 .note-editable::-webkit-scrollbar-thumb:hover
 {
-  background: #909090;
+  background:rgba(0,0,0,0.4);
+}
+.note-editable::-webkit-scrollbar-thumb:window-inactive
+{
+  background:rgba(0,0,0,0.05);
 }
 .note-editable::-webkit-scrollbar-track
 {
