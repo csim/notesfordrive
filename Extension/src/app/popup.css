@@ -336,50 +336,14 @@ h3
 
 #edit-in-drive-button
 {
-  padding-top: 2px;
+    padding-top: 2px;
 }
 
 .trash-icon, .edit-icon
 {
-  font-size: 19px;
+    font-size: 19px;
 }
 
-
-.popover-content
-{
-    margin: 0;
-    padding: 0;
-    width: 160px;
-    height: 60px;
-}
-
-.popover-content ul
-{
-    margin: 0;
-    padding: 0;
-    list-style-type: none;
-}
-
-.popover-content ul li
-{
-    color: #333333;
-    height: 30px;
-    padding: 5px 10px 5px 10px;
-}
-.popover-content ul li:hover
-{
-    cursor: pointer;
-    color: white;
-    background-color: #52A8FF;
-}
-.popover-content ul li:first-child:hover
-{
-    border-radius: 5px 5px 0px 0px;
-}
-.popover-content ul li:last-child:hover
-{
-    border-radius: 0px 0px 5px 5px;
-}
 
 #rate-overlay
 {
