@@ -446,6 +446,25 @@ h3
     border-bottom: 1px solid #d6d6d6;
 }
 
+.note-editable ul, ol
+{
+  padding-left: 30px;
+}
+
+.note-editable ul li
+{
+  font-size: 20px;
+  line-height: 22px;
+}
+
+.note-editable ul li span
+{
+  font-size: 14px;
+  vertical-align: top;
+  position: relative;
+  left: -5px;
+}
+
 .note-editable::-webkit-scrollbar
 {
   width: 7px;
