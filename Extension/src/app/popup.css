@@ -449,6 +449,7 @@ h3
 .note-editable ul, ol
 {
   padding-top: 6px;
+  margin-bottom: 0;
 }
 
 .note-editable ul
@@ -472,6 +473,30 @@ h3
   position: relative;
   left: -3px;
 }
+
+
+/*
+.note-editable ul
+{
+  list-style: none;
+  padding: 6px 0 0 0;
+}
+
+.note-editable li span
+{
+  font-size: 16px;
+  border-bottom: 1px dotted #cfcfcf;
+  display: block;
+  padding: 10px 0 10px 0;
+}
+
+.note-editable li input[type='checkbox']
+{
+  cursor: pointer;
+  margin-right: 3px;
+}
+*/
+
 
 .note-editable::-webkit-scrollbar
 {

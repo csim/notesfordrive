@@ -319,8 +319,9 @@ function setActiveDoc(doc)
 
     setLastActiveDocument(doc);
 
+    var content = resolveChecklists(doc.contentHTML);
 
-    $('.summernote').code(doc.contentHTML);
+    $('.summernote').code(content);
     $('.summernote').data('editing-doc', doc);
 
     focusActiveInput();
@@ -339,6 +340,18 @@ function setActiveDoc(doc)
 
     updateActiveArrow();
     updateDisplay();
+}
+
+
+function resolveChecklists(content)
+{
+    var checked_replace = '<input type="checkbox" checked />';
+    var unchecked_replace = '<input type="checkbox" />';
+
+    var result = content.replace(/\[checked\]/gi, checked_replace);
+    result = result.replace(/\[unchecked\]/gi, unchecked_replace);
+
+    return result;
 }
 
 
