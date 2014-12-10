@@ -14,6 +14,14 @@ document.addEventListener('DOMContentLoaded', function()
         chrome.tabs.create({ url: background.cache.folder.alternateLink });
     });
 
+    $('#reload-cache-button').click( function()
+    {
+        invalidateCache();
+        background.updateCache();
+    });
+
+    $('#reload-cache-button').tooltip();
+
     window.setTimeout(function()
     {
         updateDisplay();
@@ -41,5 +49,15 @@ function updateDisplay()
     else
     {
         $('#signed-in-as').hide();
+    }
+}
+
+
+function invalidateCache()
+{
+    background.cache =
+    {
+      folder: null,
+      documents: []
     }
 }

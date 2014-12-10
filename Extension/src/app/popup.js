@@ -7,26 +7,11 @@ var port = chrome.runtime.connect( {name: 'popup'} );
 
 document.addEventListener('DOMContentLoaded', function()
 {
-    setupPopovers();
     setupSummernote();
     setupSortable();
     setupRate();
     setupTooltips();
-
-    $('#settings-button').click( function()
-    {
-      chrome.tabs.create({'url': chrome.extension.getURL("src/options/options.html") } );
-    });
-
-    $('#new-button').click( function()
-    {
-        createDocument();
-    });
-
-    $('#authorize-button').click( function()
-    {
-        checkAuth({interactive:true});
-    });
+    setupButtons();
 
     $('.drive-folder-name').text( background.DEFAULT_FOLDER_NAME );
 
@@ -80,34 +65,24 @@ function setupSummernote()
 }
 
 
-function setupPopovers()
+function setupButtons()
 {
-    var $popoverSelector = $('#active-note-actions > .trigger');
-
-    $popoverSelector.popover(
+    $('#settings-button').click( function()
     {
-        html: true,
-        content: function() {
-            return $(this).parent().find('.popover-content').html();
-        },
-        container: 'body',
-        placement: 'top'
+      chrome.tabs.create({'url': chrome.extension.getURL("src/options/options.html") } );
     });
 
-    // hide popovers on click outside the popover button
-    $('body').on('click', function(e)
+    $('#new-button').click( function()
     {
-        $('[data-toggle="popover"]').each( function()
-        {
-            //the 'is' for buttons that trigger popups
-            //the 'has' for icons within a button that triggers a popup
-            if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
-                $(this).popover('hide');
-            }
-        });
+      createDocument();
     });
 
-    $(document).on("click", "#trash-button", function()
+    $('#authorize-button').click( function()
+    {
+      checkAuth({interactive:true});
+    });
+
+    $("#trash-button").click( function()
     {
         var activeDoc = $('.summernote').data('editing-doc');
 
@@ -117,7 +92,7 @@ function setupPopovers()
         $popoverSelector.popover('hide');
     });
 
-    $(document).on("click", "#edit-in-drive-button", function()
+    $("#edit-in-drive-button").click( function()
     {
         var activeDoc = $('.summernote').data('editing-doc');
 
@@ -343,15 +318,18 @@ function setActiveDoc(doc)
 }
 
 
-function resolveChecklists(content)
+function resolveChecklists(content) // rename TaskLists
 {
+    return content;
+
+    /*
     var checked_replace = '<input type="checkbox" checked />';
     var unchecked_replace = '<input type="checkbox" />';
 
     var result = content.replace(/\[checked\]/gi, checked_replace);
     result = result.replace(/\[unchecked\]/gi, unchecked_replace);
 
-    return result;
+    return result;*/
 }
 
 

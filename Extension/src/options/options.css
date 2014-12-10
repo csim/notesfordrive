@@ -84,6 +84,23 @@ hr
 }
 
 
+#reload-cache-button
+{
+  color: white;
+  font-family: 'Open Sans', sans-serif;
+  outline: none;
+  box-shadow: none;
+  background-color: #8D8D8D;
+  transition: all 0.1s linear;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+#reload-cache-button:hover
+{
+  background-color: #727272;
+}
+
+
 #signed-in-as
 {
     display: none;
