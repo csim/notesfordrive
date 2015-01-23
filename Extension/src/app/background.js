@@ -243,6 +243,12 @@ function cacheDocs(completed)
                     var cachedDoc = matchDocumentById(doc.item.id, cache.documents);
                     var requiresDownload = true;
 
+                    if(cachedDoc)
+                    {
+                        var diff = cachedDoc.item.version != doc.item.version ? " ---- DIFF" : '';
+                        console.log('Doc \'' + doc.item.title + '\' - cached version: ' + cachedDoc.item.version + ', google version: ' + doc.item.version + diff);
+                    }
+
                     if(cachedDoc && cachedDoc.item.version == doc.item.version)
                     {
                         requiresDownload = false;
