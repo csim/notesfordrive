@@ -448,19 +448,21 @@ h3
 
 .note-editable ul, ol
 {
-  padding-top: 6px;
+  padding-top: 3px;
   margin-bottom: 0;
 }
 
 .note-editable ul
 {
-  padding-left: 35px;
+  padding-left: 32px;
 }
 .note-editable ol
 {
   padding-left: 35px;
 }
 
+
+/* OLD
 .note-editable ul li
 {
   font-size: 18px;
@@ -472,6 +474,33 @@ h3
   font-size: 14px;
   position: relative;
   left: -3px;
+}*/
+
+
+.note-editable ul li
+{
+  font-size: 14px;
+  list-style: none;
+}
+
+.note-editable ul li:before
+{
+  content: '';
+  display: block;
+  height: 6px;
+  width: 6px;
+  background-image: url('img/bullet-point.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  position: relative;
+  top: 12.5px;
+  left: -15px;
+  padding-left: 0px;
+}
+
+.note-editable li span
+{
+  line-height: 21px;
 }
 
 
