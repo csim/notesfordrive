@@ -448,7 +448,7 @@ h3
 
 .note-editable ul, ol
 {
-  padding-top: 3px;
+  padding-top: 1px;
   margin-bottom: 0;
 }
 
@@ -462,21 +462,8 @@ h3
 }
 
 
-/* OLD
-.note-editable ul li
-{
-  font-size: 18px;
-  line-height: 21px;
-}
 
-.note-editable li span
-{
-  font-size: 14px;
-  position: relative;
-  left: -3px;
-}*/
-
-
+/*
 .note-editable ul li
 {
   font-size: 14px;
@@ -501,10 +488,48 @@ h3
 .note-editable li span
 {
   line-height: 21px;
+}*/
+
+
+.note-editable ul li
+{
+  position: relative;
+  list-style: none;
+  margin-left: 0;
+  padding-left: 0;
+  padding-top: 3px;
+  line-height: 21px;
+}
+
+.note-editable ul li:before
+{
+  position: absolute;
+  top: 4px;
+  left: -14px;
+  content: '\2022';
+  color: black;
+  font-size: 23px;
 }
 
 
-/*
+
+
+
+/* OLD
+.note-editable ul li
+{
+font-size: 18px;
+line-height: 21px;
+}
+
+.note-editable li span
+{
+font-size: 14px;
+position: relative;
+left: -3px;
+}*/
+
+/* OLDER
 .note-editable ul
 {
   list-style: none;
