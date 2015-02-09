@@ -41,27 +41,75 @@ chrome.runtime.onMessage.addListener( function(request, sender, sendResponse)
 
 function setupSummernote()
 {
-    $('.summernote').summernote(
+      var tmpl = $.summernote.renderer.getTemplate();
+      var editor = $.summernote.eventHandler.getEditor();
+
+      $.summernote.addPlugin(
       {
-          height: 375,
-
-          minHeight: 375,  // set minimum height of editor
-          maxHeight: 375,  // set maximum height of editor
-
-          focus: false,
-
-          toolbar: [
-              ['font', ['bold', 'italic', 'underline']],
-              ['color', ['color']],
-              ['para', ['ul', 'ol']]
-          ],
-
-          //onfocus: onDocumentFocus,
-          onChange: onDocumentChange
+          buttons: {
+            textColor: function (lang) {
+                return colorButton(lang);
+              }
+            }
       });
+
+    $('.summernote').summernote(
+       {
+           height: 375,
+
+           minHeight: 375,  // set minimum height of editor
+           maxHeight: 375,  // set maximum height of editor
+
+           focus: false,
+
+           toolbar: [
+               ['font', ['bold', 'italic']],
+               ['color', ['textColor']],
+               ['para', ['ul', 'ol']]
+           ],
+
+           //onfocus: onDocumentFocus,
+           onChange: onDocumentChange
+       });
 
     $('.note-editor').css('border', 'none');
     $('.note-resizebar').css('display', 'none');
+}
+
+
+function colorButton(lang)
+{
+    var tmpl = $.summernote.renderer.getTemplate();
+
+    var colorButtonLabel = '<i class="fa fa-font" style="color:black;"></i>';
+
+    var colorButton = tmpl.button(colorButtonLabel,
+    {
+        className: 'note-recent-color',
+        title: lang.color.recent,
+        event: 'color',
+        value: '{"foreColor":"black"}'
+    });
+
+    var dropdown = '<ul class="dropdown-menu">' +
+                     '<li>' +
+                       '<div class="btn-group">' +
+                         '<div class="note-palette-title">' + 'Text Color' + '</div>' +
+                         '<div class="note-color-reset" data-event="foreColor" data-value="inherit" title="' + lang.color.reset + '">' +
+                           lang.color.resetToDefault +
+                         '</div>' +
+                         '<div class="note-color-palette" data-target-event="foreColor"></div>' +
+                       '</div>' +
+                     '</li>' +
+                   '</ul>';
+
+    var moreButton = tmpl.button('',
+    {
+        title: lang.color.more,
+        dropdown: dropdown
+    });
+
+    return colorButton + moreButton;
 }
 
 
