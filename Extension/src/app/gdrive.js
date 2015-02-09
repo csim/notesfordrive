@@ -38,10 +38,14 @@ GDrive.prototype.setAllowInteractiveReauth = function(allow)
 
 GDrive.prototype.auth = function(options, opt_callback_authorized, opt_callback_failure)
 {
+  console.log("in GDrive.prototype.auth");
+
     try
     {
         var authentication_succeeded = function()
         {
+          console.log("in GDrive.prototype.auth authentication_succeeded");
+
             chrome.runtime.sendMessage( {'authenticationSucceeded': true} );
 
             if(opt_callback_authorized)
@@ -93,13 +97,20 @@ GDrive.prototype.revokeAuthToken = function(opt_callback)
 
 GDrive.prototype.authenticatedRequest = function(config, success_callback, error_callback, opt_has_retried)
 {
+    console.log("GDrive.prototype.authenticatedRequest with url: " + config.url);
+
+
     var data = config.data || null;
     var headers = config.headers || {};
 
+    var busted = config.url;// + "?cache="+(Math.random()*1000000);
+
     var xhr = new XMLHttpRequest();
-    xhr.open(config.method, config.url, true);
+    xhr.open(config.method, busted, true);
 
     xhr.setRequestHeader('Authorization', 'Bearer ' + this.googleAuth.getAccessToken() );
+    //xhr.setRequestHeader("Cache-Control","no-cache,max-age=0");
+    //xhr.setRequestHeader("Pragma", "no-cache");
 
     for(var key in headers)
         xhr.setRequestHeader(key, headers[key]);
@@ -107,24 +118,38 @@ GDrive.prototype.authenticatedRequest = function(config, success_callback, error
 
     var retry_handler = function(xhr)
     {
+      console.log("retry_handler");
+
         if(!opt_has_retried)
         {
+          console.log("retry_handler !has_retried");
+
             var authentication_succeeded = function()
             {
+              console.log("retry_handler authentication_succeeded");
+
                 this.authenticatedRequest(config, success_callback, error_callback, true);
 
             }.bind(this);
 
             var authentication_failed = function()
             {
+                console.log("retry_handler authentication_failed 1");
+
                 // second attempt - clear the access token and start from scratch
                 this.googleAuth.clearAccessToken();
 
+                console.log("retry_handler authentication_failed 2");
+
                 this.auth({interactive:config.allowInteractiveReauth}, authentication_succeeded, function()
                 {
+                    console.log("retry_handler authentication_failed auth");
+
                     // no dice - could be a token issue - revoke it and start from scratch
                     this.revokeAccessToken( function()
                     {
+                        console.log("retry_handler authentication_failed did revokeAccessToken");
+
                         if(error_callback)
                             error_callback(xhr);
 
@@ -139,6 +164,8 @@ GDrive.prototype.authenticatedRequest = function(config, success_callback, error
         }
         else
         {
+          console.log("retry_handler has_retried");
+
             if(error_callback)
                 error_callback(xhr);
         }
@@ -161,7 +188,7 @@ GDrive.prototype.authenticatedRequest = function(config, success_callback, error
             if(error_callback)
                 error_callback(xhr);
         }
-    };
+    }.bind(this);
 
     xhr.onerror = function(e)
     {
@@ -173,6 +200,12 @@ GDrive.prototype.authenticatedRequest = function(config, success_callback, error
             error_handler(xhr);
     };
 
+    if( !this.googleAuth.hasAccessToken() ) // TODO remove this if-else block
+    {
+      console.log("calling retry_handler");
+      retry_handler(xhr);
+    }
+    else
     xhr.send(data);
 }
 

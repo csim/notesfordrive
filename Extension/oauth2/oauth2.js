@@ -241,6 +241,12 @@ OAuth2.prototype.isAccessTokenExpired = function() {
     return (new Date().valueOf() - data.accessTokenDate) > data.expiresIn * 1000;
 };
 
+OAuth2.prototype.expireAccessToken = function() {
+  var data = this.get();
+  data.accessTokenDate = 0;
+  this.setSource(data);
+};
+
 /**
  * Get the persisted adapter data in localStorage. Optionally, provide a
  * property name to only retrieve its value.
@@ -402,14 +408,20 @@ OAuth2.lookupAdapterName = function(url) {
  */
 OAuth2.prototype.authorize = function(options, callback_success, callback_failure)
 {
+  console.log("OAuth2.prototype.authorize");
+
     var that = this;
     OAuth2.loadAdapter(that.adapterName, function()
     {
+      console.log("OAuth2.prototype.authorize - in OAuth2.loadAdapter");
+
         that.adapter = OAuth2.adapters[that.adapterName];
         var data = that.get();
 
         if(!data.accessToken)
-        {
+        {/* TODO uncomment me
+            console.log("OAuth2.prototype.authorize - no access token");
+
             // There's no access token yet. Start the authorizationCode flow
             if(options.interactive)
                 that.openAuthorizationCodePopup(callback_success);
@@ -420,19 +432,27 @@ OAuth2.prototype.authorize = function(options, callback_success, callback_failur
             }
         }
         else if( that.isAccessTokenExpired() )
-        {
+        {*/
+            console.log("OAuth2.prototype.authorize - has expired access token");
+
             // There's an existing access token but it's expired
             if(data.refreshToken)
             {
+              console.log("OAuth2.prototype.authorize - has refresh token");
+
                 that.refreshAccessToken(data.refreshToken, function(access_token, expires_in, refresh_token)
                 {
                     if(!access_token)
                     {
+                      console.log("OAuth2.prototype.authorize - did refresh failure");
+
                         if(callback_failure)
                             callback_failure();
                     }
                     else
                     {
+                      console.log("OAuth2.prototype.authorize - did refresh success");
+
                         var newData = that.get();
                         newData.accessTokenDate = new Date().valueOf();
                         newData.accessToken = access_token;
@@ -445,7 +465,6 @@ OAuth2.prototype.authorize = function(options, callback_success, callback_failur
                         console.log(timestamp + 'OAuth2 access token refreshed');
                         that.printAccessTokenData();
                         */
-
 
                         // Callback when we finish refreshing
                         if (callback_success) {

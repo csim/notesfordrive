@@ -6,7 +6,9 @@ document.addEventListener('DOMContentLoaded', function()
 {
     $('#sign-out-button').click( function()
     {
-        background.gdrive.revokeAuthToken( updateDisplay );
+
+      background.gdrive.oauth.clearAccessToken();
+        //background.gdrive.revokeAuthToken( updateDisplay );
     });
 
     $('#open-folder-button').click( function()

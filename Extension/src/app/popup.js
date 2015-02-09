@@ -192,6 +192,8 @@ function onDocumentChange(contents, $editable)
 
 function checkAuth(options)
 {
+  console.log("in checkAuth");
+
     if(!navigator.onLine)
     {
         updateDisplay();
@@ -213,6 +215,8 @@ function checkAuth(options)
 
 function authenticationSucceeded()
 {
+  console.log("in authenticationSucceeded");
+
     displayDocs();
 
     // update the cache every time the user opens the popup incase changes have been made to the documents in drive
@@ -221,6 +225,8 @@ function authenticationSucceeded()
 
 function authenticationFailed()
 {
+  console.log("in authenticationFailed");
+
     updateDisplay();
 }
 
